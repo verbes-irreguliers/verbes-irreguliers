@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Révision des verbes allemands</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+
+<body>
+  <!-- HEADER -->
+  <a href="index.html" style="font-size: 20px;">🏠</a>
+
+  <!-- MENU PRINCIPAL -->
+  <div id="menu" class="card">
+    <h1>📘 Verbes irréguliers allemands</h1>
+
+    <div>
+      <button onclick="startQuizMode()">🎯 Révision ciblée</button>
+      <button onclick="openCustomLists()">🧩 Listes personnalisées</button>
+      <button onclick="afficherMiniJeux()">🎮 Mini-Jeux</button>
+      <button onclick="openStats()">📊 Statistiques</button>
+      <button id="btnActiverNotif" onclick="activerNotifications()">🔔 Activer les notifications</button>
+      <button id="btnDesactiverNotif" class="hidden" onclick="desactiverNotifications()">🔕 Désactiver les notifications</button>
+      <button onclick="openPomodoro()">🍅 Pomodoro</button>
+      <button onclick="openSettings()">⚙️ Paramètres</button>
+      
+      <p style="text-align: center; margin-top: 10px;">
+        🔥 Série actuelle : <strong id="streakMenu">0</strong> jour(s)
+      </p>
+    </div>
+  </div>
+
+  <!-- AUDIO ELEMENTS -->
+  <audio id="youpiAudio" src="youpi.mp3"></audio>
+  <audio id="eOhAudio" src="e_oh.mp3"></audio>
+  <audio id="notifSound" src="notification.mp3"></audio>
+  <audio id="themeSwitchSound" src="switch.mp3"></audio>
+  <audio id="quackSound" src="Quack.ogg"></audio>
+
+  <!-- POMODORO PANEL -->
+  <div id="pomodoroPanel" class="card hidden"></div>
+
+  <!-- SETTINGS PANEL -->
+  <div id="settingsPanel" class="card hidden">
+    <h1>⚙️ Paramètres</h1>
+
+    <!-- THEME SELECTOR -->
+    <div style="margin-bottom: 20px;">
+      <label style="display: block; margin-bottom: 10px; font-weight: bold;">🎨 Sélectionner un thème:</label>
+      <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+        <button onclick="changeTheme('light')" style="flex: 1; min-width: 80px;">☀️ Clair</button>
+        <button onclick="changeTheme('dark')" style="flex: 1; min-width: 80px;">🌙 Sombre</button>
+      </div>
+      <div style="display: flex; gap: 5px; flex-wrap: wrap; margin-top: 5px;">
+        <button onclick="changeTheme('dracula')" style="flex: 1; min-width: 80px;">🦇 Dracula</button>
+        <button onclick="changeTheme('nord')" style="flex: 1; min-width: 80px;">❄️ Nord</button>
+      </div>
+      <div style="display: flex; gap: 5px; flex-wrap: wrap; margin-top: 5px;">
+        <button onclick="changeTheme('colorful')" style="flex: 1; min-width: 80px;">🌈 Coloré</button>
+        <button onclick="changeTheme('highcontrast')" style="flex: 1; min-width: 80px;">⚫⚪ Contraste</button>
+      </div>
+    </div>
+
+    <!-- DYSLEXIC FONT SECTION -->
+    <div style="margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border);">
+      <button onclick="toggleDyslexicFont()" id="btnDyslexicSettings" style="width: 100%;">📖 Activer police dyslexique</button>
+    </div>
+
+    <!-- DATA MANAGEMENT -->
+    <div style="margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border);">
+      <label style="display: block; margin-bottom: 10px; font-weight: bold;">📊 Gestion des données:</label>
+      <button onclick="exporterDonnees()" style="width: 100%; margin-bottom: 8px;">💾 Exporter mes progrès</button>
+      <button onclick="importerDonnees()" style="width: 100%;">📂 Importer mes progrès</button>
+    </div>
+
+    <!-- BACK BUTTON -->
+    <button onclick="closeSettings()" style="width: 100%; margin-top: 15px;">⬅ Retour</button>
+  </div>
+
+  <!-- QUIZ PANEL -->
+  <div id="quiz" class="card hidden">
+    <h1>📝 Quiz</h1>
+
+    <p><strong>Infinitif :</strong> <span id="inf"></span></p>
+    <p><strong>Sens :</strong> <span id="sens"></span></p>
+
+    <label id="extraLabel" class="hidden">
+      Ta réponse
+      <input id="extraInput" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    </label>
+
+    <label id="presLabel">
+      Présent
+      <input id="pres" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    </label>
+
+    <label id="pretLabel">
+      Prétérit
+      <input id="pret" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    </label>
+
+    <label id="parfLabel">
+      Parfait
+      <input id="parf" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    </label>
+
+    <button onclick="checkAnswer()">Valider</button>
+
+    <div class="result" id="result"></div>
+    <p id="messageEncouragement" class="hidden">Réessaye encore 💪</p>
+    <button onclick="nextQuestion()" id="nextBtn" class="hidden">➡️ Verbe suivant</button>
+  </div>
+
+  <!-- CUSTOM LISTS PANEL -->
+  <div id="verbesPerso" class="card hidden">
+    <h2>📂 Mes listes de verbes</h2>
+
+    <label>
+      Nouvelle liste
+      <input id="nomListe" type="text">
+    </label>
+    <button onclick="creerListe()">➕ Créer la liste</button>
+
+    <div id="listesExistantes"></div>
+
+    <hr>
+
+    <div id="gestionListe" class="hidden">
+      <h3 id="titreListe"></h3>
+
+      <label>
+        Infinitif
+        <div style="position: relative;">
+          <input id="p_inf" type="text" autocomplete="off" 
+                 oninput="suggestionsInfinitif()" 
+                 onblur="fermerSuggestionsAvecDelai()">
+          <div id="suggestions" class="suggestions hidden"></div>
+        </div>
+      </label>
+
+      <label>
+        Présent
+        <input id="p_pres" type="text">
+      </label>
+
+      <label>
+        Prétérit
+        <input id="p_pret" type="text">
+      </label>
+
+      <label>
+        Parfait
+        <input id="p_parf" type="text">
+      </label>
+
+      <label>
+        Sens (utiliser ; pour séparer)
+        <input id="p_sens" type="text">
+      </label>
+
+      <button onclick="ajouterVerbePerso()">💾 Ajouter le verbe</button>
+      <button onclick="reviserListePerso()">🎯 Réviser cette liste</button>
+      <button onclick="exporterListe()">📤 Exporter la liste</button>
+
+      <label style="margin-top: 10px;">
+        📥 Importer une liste
+        <input type="file" id="importListeInput" accept=".json">
+      </label>
+
+      <div id="listeVerbesPerso"></div>
+    </div>
+  </div>
+
+  <!-- STATISTICS PANEL -->
+  <div id="statsPanel" class="card hidden">
+    <h2>📊 Statistiques</h2>
+    
+    <div id="graphiqueContainer" style="margin-bottom: 30px; background: var(--card); padding: 15px; border-radius: 8px; border: 1px solid var(--border);">
+      <canvas id="progressChart" height="300"></canvas>
+    </div>
+    
+    <div id="statsContent"></div>
+
+    <div id="groupInfo" style="margin-bottom: 15px;">
+      <div style="font-weight: bold;">
+        Groupe actuel : <span id="currentGroup">1</span>
+      </div>
+
+      <div class="progress-bar">
+        <div id="groupProgressBar" class="progress-fill"></div>
+      </div>
+
+      <div style="font-size: 12px; margin-top: 4px;">
+        Progression : <span id="groupPercent">0</span>%
+      </div>
+    </div>
+
+    <div id="listeCompleteVerbes" class="hidden"></div>
+
+    <!-- Modal Popup pour les conjugaisons -->
+    <div id="modalConjugaisons" class="hidden" style="
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    ">
+      <div style="
+        background: rgba(216, 216, 216, 0.927);
+        padding: 30px;
+        border-radius: 12px;
+        max-width: 500px;
+        max-height: 80vh;
+        overflow-y: auto;
+        box-shadow: 0 4px 20px rgba(225, 225, 225, 0.3);
+        border: 2px solid var(--primary);
+      ">
+        <div id="modalContent"></div>
+      </div>
+    </div>
+
+    <p>
+      Notifications : <strong id="etatNotif"></strong>
+    </p>
+
+    <button onclick="exporterDonnees()">💾 Exporter mes progrès</button>
+    <button onclick="importerDonnees()">📂 Importer mes progrès</button>
+    <button onclick="exporterPDF()">📄 Générer un PDF</button>
+    <button onclick="afficherTousLesVerbes()">📋 Voir tous les verbes</button>
+
+    <input type="file" id="importFile" accept=".json" class="hidden">
+
+    <button onclick="closeStats()">⬅ Retour</button>
+  </div>
+
+  <!-- MINI-JEUX PANEL -->
+  <div id="miniJeuxPanel" class="card hidden">
+    <div id="miniJeuxContent"></div>
+  </div>
+
+  <!-- PENDU PANEL -->
+  <div id="penduPanel" class="card hidden">
+    <div id="penduContent"></div>
+  </div>
+
+  <!-- MÉMOIRE PANEL -->
+  <div id="memoirePanel" class="card hidden">
+    <div id="memoireContent"></div>
+  </div>
+
+  <!-- VRAI/FAUX PANEL -->
+  <div id="vraiFauxPanel" class="card hidden">
+    <div id="vraiFauxContent"></div>
+  </div>
+
+  <!-- TRADUCTION PANEL -->
+  <div id="traductionPanel" class="card hidden">
+    <div id="traductionContent"></div>
+  </div>
+
+  <!-- RELIER PANEL -->
+  <div id="relierPanel" class="card hidden">
+    <div id="relierContent"></div>
+  </div>
+
+  <!-- MAÎTRISE PANEL -->
+  <div id="maitrisePanel" class="card hidden">
+    <div id="maitriseContent"></div>
+  </div>
+
+  <!-- DÉFI VITESSE PANEL -->
+  <div id="defiVitessePanel" class="card hidden">
+    <div id="defiVitesseContent"></div>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/quiz.js"></script>
+  <script src="js/notifications.js"></script>
+  <script src="js/verbesPerso.js"></script>
+  <script src="js/pomodoro.js"></script>
+  <script src="js/stats.js"></script>
+  <script src="js/minigames.js"></script>
+  <script src="js/app.js"></script>
+</body>
+
+</html>
