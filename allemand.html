@@ -1,2382 +1,299 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<title>Révision des verbes allemands</title>
-
-<style>
-body {
-  font-family: Arial, sans-serif;
-  background:#f4f4f4;
-  padding:20px;
-}
-.card {
-  background:#fff;
-  padding:20px;
-  max-width:600px;
-  margin:auto;
-  border-radius:10px;
-  box-shadow:0 2px 8px rgba(0,0,0,.1);
-}
-h1 { text-align:center; }
-label { display:block; margin-top:10px; }
-input { width:100%; padding:8px; margin-top:4px; }
-button { margin-top:15px; padding:10px; width:100%; font-size:16px; }
-.hidden { display:none; }
-.result { margin-top:15px; }
-
-table td, table th {
-  border: 1px solid #ccc;
-  padding: 6px;
-  font-size: 14px;
-}
-
-table tr:nth-child(even) {
-  background: #fafafa;
-}
-
-.verbe-maitrise {
-  background: #d4edda;
-  color: #155724;
-}
-
-.verbe-probleme {
-  background: #f8d7da;
-  color: #721c24;
-}
-
-.verbe-neutre {
-  background: #ffffff;
-}
-
-.verbe-maitrise td,
-.verbe-probleme td,
-.verbe-neutre td {
-  border: 1px solid #ccc;
-  padding: 6px;
-}
-
-@keyframes successFlash {
-  0%   { background-color: #ffffff; }
-  30%  { background-color: #d4edda; }
-  100% { background-color: #ffffff; }
-}
-
-@keyframes successPop {
-  0%   { transform: scale(1); }
-  40%  { transform: scale(1.05); }
-  100% { transform: scale(1); }
-}
-
-.success-animation {
-  animation: successFlash 0.6s ease, successPop 0.4s ease;
-}
-
-.suggestions {
-  position: absolute;
-  background: var(--card);
-  border: 1px solid var(--border);
-  width: 100%;
-  max-height: 150px;
-  overflow-y: auto;
-  z-index: 10;
-}
-.suggestions div {
-  padding: 6px;
-  cursor: pointer;
-}
-
-.suggestions div:hover,
-.suggestions .active {
-  background: var(--accent);
-  color: #000;
-}
-
-:root {
-  --bg: #f4f4f4;
-  --card: #ffffff;
-  --text: #000000;
-  --input: #ffffff;
-  --border: #cccccc;
-  --accent: #4caf50;
-  --error: #ff4d4d;
-}
-
-body.dark {
-  --bg: #121212;
-  --card: #1e1e1e;
-  --text: #e0e0e0;
-  --input: #2a2a2a;
-  --border: #444;
-  --accent: #81c784;
-  --error: #ff6b6b;
-}
-
-body {
-  background: var(--bg);
-  color: var(--text);
-}
-
-.card {
-  background: var(--card);
-}
-
-input, button, select {
-  background: var(--input);
-  color: var(--text);
-  border: 1px solid var(--border);
-}
-
-button {
-  cursor: pointer;
-}
-
-button:hover {
-  opacity: 0.9;
-}
-
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Révision des verbes allemands</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script> <!-- Pour la génération du PDF dans les statistiques -->
 </head>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script> <!-- La librairie jspdf est utilisé pour générer le PDF des statistiques -->
-
 <body>
-
-<div class="card">
-<h1>📘 Verbes irréguliers allemands</h1>
-
-<div id="menu">
-<!--  <button onclick="start('random')">🎲 Apprentissage aléatoire</button> -->
-  <button onclick="start('cible')">🎯 Révision ciblée</button>
-  <button onclick="ouvrirVerbesPerso()">🧩 Listes de verbes personnalisées</button>
-  <button onclick="afficherStats()">📊 Statistiques</button>
-<button id="btnActiverNotif" onclick="activerNotifications()">🔔 Activer les notifications</button>
-<button id="btnDesactiverNotif" onclick="desactiverNotifications()" class="hidden">🔕 Désactiver les notifications</button>
-<button onclick="toggleTheme()">🌙 Thème sombre</button>
-<p style="text-align:center; margin-top:10px;">
-  🔥 Série actuelle : <strong id="streakMenu">0</strong> jour(s)
-</p>
-
-</div>
-
-<audio id="youpiAudio" src="youpi.mp3"></audio>
-<audio id="eOhAudio" src="e_oh.mp3"></audio>
-
-<div id="quiz" class="hidden">
-
-  <p><strong>Infinitif :</strong> <span id="inf"></span></p>
-  <p><strong>Sens :</strong> <span id="sens"></span></p>
-
-  <label id="extraLabel" class="hidden">
-    Ta réponse
-    <input id="extraInput" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-  </label>
-
-  <label id="presLabel">Présent
-    <input id="pres" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-  </label>
-
-  <label id="pretLabel">Prétérit
-    <input id="pret" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-  </label>
-
-  <label id="parfLabel">Parfait
-    <input id="parf" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-  </label>
-
-  <button onclick="check()">Valider</button>
-
-  <div class="result" id="result"></div>
-  <p id="messageEncouragement" class="hidden">Réessaye encore 💪</p>
-  <button onclick="next()" id="nextBtn" class="hidden">➡️ Verbe suivant</button>
-
-</div>
-
-<div id="verbesPerso" class="hidden">
-  <h2>📂 Mes listes de verbes</h2>
-
-  <label>Nouvelle liste
-    <input id="nomListe">
-  </label>
-  <button onclick="creerListe()">➕ Créer la liste</button>
-
-  <div id="listesExistantes"></div>
-
-  <hr>
-
-  <div id="gestionListe" class="hidden">
-    <h3 id="titreListe"></h3>
-
-    <label>Infinitif
-  <div style="position:relative">
-    <input id="p_inf" autocomplete="off"
-           oninput="suggestionsInfinitif()"
-           onblur="fermerSuggestionsAvecDelai()">
-    <div id="suggestions" class="suggestions hidden"></div>
-  </div>
-</label>
-
-
-    <label>Présent <input id="p_pres"></label>
-    <label>Prétérit <input id="p_pret"></label>
-    <label>Parfait <input id="p_parf"></label>
-    <label>Sens ( ; pour séparer) <input id="p_sens"></label>
-
-    <button onclick="ajouterVerbePerso()">💾 Ajouter le verbe</button>
-    <button onclick="reviserListePerso()">🎯 Réviser cette liste</button>
-    <button onclick="exporterListe()">📤 Exporter la liste</button>
-
-<label style="margin-top:10px;">
-  📥 Importer une liste
-  <input type="file" id="importListeInput" accept=".json" onchange="importerListe(event)">
-</label>
-
-
-    <div id="listeVerbesPerso"></div>
-  </div>
-</div>
-
-
-
-<div id="statsPanel" class="hidden">
-  <h2>📊 Statistiques</h2>
-  <div id="statsContent"></div>
-  <div id="listeCompleteVerbes" class="hidden"></div>
-  <p>
-  Notifications :
-  <strong id="etatNotif"></strong>
-</p>
-<button onclick="exporterDonnees()">💾 Exporter mes progrès et statistiques</button>
-<button onclick="importerDonnees()">📂 Importer mes progrès et statistiques</button>
-<button onclick="exporterPDF()">📄 Générer un PDF de mes statistiques</button>
-<button onclick="afficherTousLesVerbes()">📋 Voir tous les verbes</button>
-
-<input type="file" id="importFile" accept=".json" class="hidden">
-
-  <button onclick="fermerStats()">⬅ Retour</button>
-</div>
-</div>
-
-<script>
-// ================== PARAMÈTRES ==================
-const TAILLE_PALIER = 5;
-const SEUIL_MAITRISE = 3;
-const TAUX_REVISION = 0.2;
-const QUESTION_TYPES = ["classique", "sens_inf", "inf_sens"];
-
-// ================== VERBES ==================
-const verbes = [
-    {
-      "inf": "an/bieten",
-      "pres": "er bietet an",
-      "pret": "er bot an",
-      "parf": "er hat angeboten",
-      "sens": "offrir"
-    },
-    {
-      "inf": "an/fangen",
-      "pres": "er fängt an",
-      "pret": "er fing an",
-      "parf": "er hat angefangen",
-      "sens": "commencer"
-    },
-    {
-      "inf": "an/kommen",
-      "pres": "er kommt an",
-      "pret": "er kam an",
-      "parf": "er ist angekommen",
-      "sens": "arriver"
-    },
-    {
-      "inf": "an/rufen",
-      "pres": "er ruft an",
-      "pret": "er rief an",
-      "parf": "er hat angerufen",
-      "sens": "appeler au téléphone"
-    },
-    {
-      "inf": "an/ziehen",
-      "pres": "er zieht an",
-      "pret": "er zog an",
-      "parf": "er hat angezogen",
-      "sens": "mettre (un vêtement)"
-    },
-    {
-      "inf": "aus/geben",
-      "pres": "er gibt aus",
-      "pret": "er gab aus",
-      "parf": "er hat ausgegeben",
-      "sens": "dépenser"
-    },
-    {
-      "inf": "aus/sehen",
-      "pres": "er sieht aus",
-      "pret": "er sah aus",
-      "parf": "er hat ausgesehen",
-      "sens": "avoir l'air"
-    },
-    {
-      "inf": "beginnen",
-      "pres": "er beginnt",
-      "pret": "er begann",
-      "parf": "er hat begonnen",
-      "sens": "commencer"
-    },
-    {
-      "inf": "bekommen",
-      "pres": "er bekommt",
-      "pret": "er bekam",
-      "parf": "er hat bekommen",
-      "sens": "recevoir, obtenir"
-    },
-    {
-      "inf": "begreifen",
-      "pres": "er begreift",
-      "pret": "er begriff",
-      "parf": "er hat begriffen",
-      "sens": "comprendre"
-    },
-    {
-      "inf": "beschließen",
-      "pres": "er beschließt",
-      "pret": "er beschloss",
-      "parf": "er hat beschlossen",
-      "sens": "décider"
-    },
-    {
-      "inf": "beschreiben",
-      "pres": "er beschreibt",
-      "pret": "er beschrieb",
-      "parf": "er hat beschrieben",
-      "sens": "décrire"
-    },
-    {
-      "inf": "bleiben",
-      "pres": "er bleibt",
-      "pret": "er blieb",
-      "parf": "er ist geblieben",
-      "sens": "rester"
-    },
-    {
-      "inf": "brechen",
-      "pres": "er bricht",
-      "pret": "er brach",
-      "parf": "er hat gebrochen",
-      "sens": "casser"
-    },
-    {
-      "inf": "bringen",
-      "pres": "er bringt",
-      "pret": "er brachte",
-      "parf": "er hat gebracht",
-      "sens": "apporter"
-    },
-    {
-      "inf": "denken",
-      "pres": "er denkt",
-      "pret": "er dachte",
-      "parf": "er hat gedacht",
-      "sens": "penser"
-    },
-    {
-      "inf": "ein/laden",
-      "pres": "er lädt ein",
-      "pret": "er lud ein",
-      "parf": "er hat eingeladen",
-      "sens": "inviter"
-    },
-    {
-      "inf": "ein/schlafen",
-      "pres": "er schläft ein",
-      "pret": "er schlief ein",
-      "parf": "er ist eingeschlafen",
-      "sens": "s'endormir"
-    },
-    {
-      "inf": "empfangen",
-      "pres": "er empfängt",
-      "pret": "er empfing",
-      "parf": "er hat empfangen",
-      "sens": "recevoir"
-    },
-    {
-      "inf": "empfehlen",
-      "pres": "er empfiehlt",
-      "pret": "er empfahl",
-      "parf": "er hat empfohlen",
-      "sens": "recommander"
-    },
-    {
-      "inf": "erhalten",
-      "pres": "er erhält",
-      "pret": "er erhielt",
-      "parf": "er hat erhalten",
-      "sens": "obtenir"
-    },
-    {
-      "inf": "ertragen",
-      "pres": "er erträgt",
-      "pret": "er ertrug",
-      "parf": "er hat ertragen",
-      "sens": "supporter"
-    },
-    {
-      "inf": "essen",
-      "pres": "er isst",
-      "pret": "er aß",
-      "parf": "er hat gegessen",
-      "sens": "manger"
-    },
-    {
-      "inf": "fahren",
-      "pres": "er fährt",
-      "pret": "er fuhr",
-      "parf": "er ist gefahren",
-      "sens": "aller (en véhicule)"
-    },
-    {
-      "inf": "fallen",
-      "pres": "er fällt",
-      "pret": "er fiel",
-      "parf": "er ist gefallen",
-      "sens": "tomber"
-    },
-    {
-      "inf": "fangen",
-      "pres": "er fängt",
-      "pret": "er fing",
-      "parf": "er hat gefangen",
-      "sens": "attraper"
-    },
-    {
-      "inf": "fern/sehen",
-      "pres": "er sieht fern",
-      "pret": "er sah fern",
-      "parf": "er hat ferngesehen",
-      "sens": "regarder la télé"
-    },
-    {
-      "inf": "finden",
-      "pres": "er findet",
-      "pret": "er fand",
-      "parf": "er hat gefunden",
-      "sens": "trouver"
-    },
-    {
-      "inf": "fliegen",
-      "pres": "er fliegt",
-      "pret": "er flog",
-      "parf": "er ist geflogen",
-      "sens": "voler"
-    },
-    {
-      "inf": "fliehen",
-      "pres": "er flieht",
-      "pret": "er floh",
-      "parf": "er ist geglohen",
-      "sens": "fuir"
-    },
-    {
-      "inf": "fressen",
-      "pres": "er frisst",
-      "pret": "er fraß",
-      "parf": "er hat gefressen",
-      "sens": "manger un animal"
-    },
-    {
-      "inf": "geben",
-      "pres": "er gibt",
-      "pret": "er gab",
-      "parf": "er hat gegeben",
-      "sens": "donner"
-    },
-    {
-      "inf": "gehen",
-      "pres": "er geht",
-      "pret": "er ging",
-      "parf": "er ist gegangen",
-      "sens": "aller"
-    },
-    {
-      "inf": "gefallen",
-      "pres": "er gafällt",
-      "pret": "er gefiel",
-      "parf": "er hat gefallen",
-      "sens": "plaire"
-    },
-    {
-      "inf": "gewinnen",
-      "pres": "er gewinnt",
-      "pret": "er gewann",
-      "parf": "er hat gewonnen",
-      "sens": "gagner"
-    },
-    {
-      "inf": "halten",
-      "pres": "er hält",
-      "pret": "er hielt",
-      "parf": "er hat gehalten",
-      "sens": "tenir"
-    },
-    {
-      "inf": "helfen",
-      "pres": "er hilft",
-      "pret": "er half",
-      "parf": "er hat geholfen",
-      "sens": "aider"
-    },
-    {
-      "inf": "kennen",
-      "pres": "er kennt",
-      "pret": "er kannte",
-      "parf": "er hat gekannt",
-      "sens": "connaître"
-    },
-    {
-      "inf": "kommen",
-      "pres": "er kommt",
-      "pret": "er kam",
-      "parf": "er ist gekommen",
-      "sens": "venir"
-    },
-    {
-      "inf": "lassen",
-      "pres": "er lässt",
-      "pret": "er ließ",
-      "parf": "er hat gelassen",
-      "sens": "laisser"
-    },
-    {
-      "inf": "laufen",
-      "pres": "er läuft",
-      "pret": "er lief",
-      "parf": "er ist gelaufen",
-      "sens": "courir"
-    },
-    {
-      "inf": "leiden",
-      "pres": "er leidet",
-      "pret": "er litt",
-      "parf": "er hat gelitten",
-      "sens": "souffrir"
-    },
-    {
-      "inf": "lesen",
-      "pres": "er liest",
-      "pret": "er las",
-      "parf": "er hat gelesen",
-      "sens": "lire"
-    },
-    {
-      "inf": "mit/helfen",
-      "pres": "er hilft mit",
-      "pret": "er half mit",
-      "parf": "er hat mitgeholfen",
-      "sens": "donner un coup de main"
-    },
-    {
-      "inf": "mit/nehmen",
-      "pres": "er nimmt mit",
-      "pret": "er nahm mit",
-      "parf": "er hat mitgenommen",
-      "sens": "emporter"
-    },
-    {
-      "inf": "nehmen",
-      "pres": "er nimmt",
-      "pret": "er nahm",
-      "parf": "er hat genommen",
-      "sens": "prendre"
-    },
-    {
-      "inf": "reiten",
-      "pres": "er reitet",
-      "pret": "er ritt",
-      "parf": "er ist geritten",
-      "sens": "monter à cheval"
-    },
-    {
-      "inf": "sheinen",
-      "pres": "er sheint",
-      "pret": "er schien",
-      "parf": "er hat geschienen",
-      "sens": "sembler/briller"
-    },
-    {
-      "inf": "schlafen",
-      "pres": "er schläft",
-      "pret": "er schlief",
-      "parf": "er hat geschlafen",
-      "sens": "dormir"
-    },
-    {
-      "inf": "schließen",
-      "pres": "er schließt",
-      "pret": "er schloss",
-      "parf": "er hat geschlossen",
-      "sens": "fermer"
-    },
-    {
-      "inf": "schreiben",
-      "pres": "er schreibt",
-      "pret": "er schrieb",
-      "parf": "er hat geschrieben",
-      "sens": "écrire"
-    },
-    {
-      "inf": "schreien",
-      "pres": "er schreit",
-      "pret": "er schrie",
-      "parf": "er hat geschrien",
-      "sens": "crier"
-    },
-    {
-      "inf": "schwimmen",
-      "pres": "er schwimmt",
-      "pret": "er schwamm",
-      "parf": "er ist geschwommen",
-      "sens": "nager"
-    },
-    {
-      "inf": "sehen",
-      "pres": "er sieht",
-      "pret": "er sah",
-      "parf": "er hat gesehen",
-      "sens": "voir"
-    },
-    {
-      "inf": "sein",
-      "pres": "er ist",
-      "pret": "er war",
-      "parf": "er ist gewesen",
-      "sens": "être"
-    },
-    {
-      "inf": "singen",
-      "pres": "er singt",
-      "pret": "er sang",
-      "parf": "er hat gesungen",
-      "sens": "chanter"
-    },
-    {
-      "inf": "sitzen",
-      "pres": "er sitzt",
-      "pret": "er saß",
-      "parf": "er hat gesessen",
-      "sens": "être assis"
-    },
-    {
-      "inf": "sprechen",
-      "pres": "er spricht",
-      "pret": "er sprach",
-      "parf": "er hat gesprochen",
-      "sens": "parler"
-    },
-    {
-      "inf": "stehen",
-      "pres": "er steht",
-      "pret": "er stand",
-      "parf": "er hat gestanden",
-      "sens": "être debout"
-    },
-    {
-      "inf": "steigen",
-      "pres": "er steigt",
-      "pret": "er stieg",
-      "parf": "er ist gestiegen",
-      "sens": "monter"
-    },
-    {
-      "inf": "sterben",
-      "pres": "er stirbt",
-      "pret": "er starb",
-      "parf": "er ist gestorben",
-      "sens": "mourir"
-    },
-    {
-      "inf": "sich streiten",
-      "pres": "er streitet sich",
-      "pret": "er stritt sich",
-      "parf": "er sich gestritten",
-      "sens": "se disputer"
-    },
-    {
-      "inf": "tragen",
-      "pres": "er trägt",
-      "pret": "er trug",
-      "parf": "er hat getragen",
-      "sens": "porter"
-    },
-    {
-      "inf": "treffen",
-      "pres": "er trifft",
-      "pret": "er traf",
-      "parf": "er hat getroffen",
-      "sens": "rencontrer"
-    },
-    {
-      "inf": "treiben",
-      "pres": "er treibt",
-      "pret": "er trieb",
-      "parf": "er hat getrieben",
-      "sens": "pousser / pratiquer"
-    },
-    {
-      "inf": "trinken",
-      "pres": "er trinkt",
-      "pret": "er trank",
-      "parf": "er hat getrunken",
-      "sens": "boire"
-    },
-    {
-      "inf": "tun",
-      "pres": "er tut",
-      "pret": "er tat",
-      "parf": "er hat getan",
-      "sens": "faire"
-    },
-    {
-      "inf": "übertreiben",
-      "pres": "er übertreibt",
-      "pret": "er übertrieb",
-      "parf": "er hat übertreiben",
-      "sens": "exagérer"
-    },
-    {
-      "inf": "verbieten",
-      "pres": "er verbietet",
-      "pret": "er verbot",
-      "parf": "er hat verboten",
-      "sens": "interdire"
-    },
-    {
-      "inf": "verbringen",
-      "pres": "er verbringt",
-      "pret": "er verbrachte",
-      "parf": "er hat verbracht",
-      "sens": "passer du temps"
-    },
-    {
-      "inf": "vergessen",
-      "pres": "er vergisst",
-      "pret": "er vergaß",
-      "parf": "er hat vergessen",
-      "sens": "oublier"
-    },
-    {
-      "inf": "vergleichen",
-      "pres": "er vegleicht",
-      "pret": "er verglich",
-      "parf": "er hat verglichen",
-      "sens": "comparer"
-    },
-    {
-      "inf": "verlassen",
-      "pres": "er verlässt",
-      "pret": "er verließ",
-      "parf": "er hat verlassen",
-      "sens": "quitter, abandonner"
-    },
-    {
-      "inf": "verlieren",
-      "pres": "er verliert",
-      "pret": "er verlor",
-      "parf": "er hat verloren",
-      "sens": "perdre"
-    },
-    {
-      "inf": "versprechen",
-      "pres": "er verspricht",
-      "pret": "er versprach",
-      "parf": "er hat versprochen",
-      "sens": "promettre"
-    },
-    {
-      "inf": "verschwinden",
-      "pres": "er verschwimdet",
-      "pret": "er verschwand",
-      "parf": "er ist verschwunden",
-      "sens": "disparaître"
-    },
-    {
-      "inf": "verstehen",
-      "pres": "er versteht",
-      "pret": "er verstand",
-      "parf": "er hat verstanden",
-      "sens": "comprendre"
-    },
-    {
-      "inf": "vor/schlagen",
-      "pres": "er schlägt vor",
-      "pret": "er schlug vor",
-      "parf": "er hat vorgeschlagen",
-      "sens": "proposer"
-    },
-    {
-      "inf": "werden",
-      "pres": "er wird",
-      "pret": "er wurde",
-      "parf": "er ist geworden",
-      "sens": "devenir"
-    },
-    {
-      "inf": "werfen",
-      "pres": "er wirft",
-      "pret": "er warf",
-      "parf": "er hat geworfen",
-      "sens": "jeter"
-    },
-    {
-      "inf": "wissen",
-      "pres": "er weiß",
-      "pret": "er wusste",
-      "parf": "er hat gewusst",
-      "sens": "savoir"
-    },
-    {
-      "inf": "ziehen",
-      "pres": "er zieht",
-      "pret": "er zog",
-      "parf": "er hat gezogen",
-      "sens": "tirer"
-    },
-    {
-      "inf": "zwingen",
-      "pres": "er zwingt",
-      "pret": "er zwang",
-      "parf": "er hat gezwungen",
-      "sens": "forcer"
-    },
-  { inf: "beginnen", pres: "er beginnt", pret: "er begann", parf: "er hat begonnen", sens: "commencer" },
-  { inf: "bleiben", pres: "er bleibt", pret: "er blieb", parf: "er ist geblieben", sens: "rester" },
-  { inf: "bringen", pres: "er bringt", pret: "er brachte", parf: "er hat gebracht", sens: "apporter" },
-  { inf: "denken", pres: "er denkt", pret: "er dachte", parf: "er hat gedacht", sens: "penser" },
-  { inf: "essen", pres: "er isst", pret: "er aß", parf: "er hat gegessen", sens: "manger" },
-  { inf: "an/bieten", pres: "er bietet an", pret: "er bot an", parf: "er hat angeboten", sens: "offrir, proposer" },
-  { inf: "aus/sehen", pres: "er sieht aus", pret: "er sah aus", parf: "er hat ausgesehen", sens: "avoir l'air" },
-  { inf: "an/ziehen", pres: "er zieht an", pret: "er zog an", parf: "er hat angezogen", sens: "mettre (un vêtement)" },
-  { inf: "an/fangen", pres: "er fängt an", pret: "er fing an", parf: "er hat angefangen", sens: "commencer" },
-  { inf: "an/kommen", pres: "er kommt an", pret: "er kam an", parf: "er ist angekommen", sens: "arriver" },
-  { inf: "aus/geben", pres: "er gibt aus", pret: "er gab aus", parf: "er hat ausgegeben", sens: "dépenser" },
-  { inf: "begreifen", pres: "er begreift", pret: "er begriff", parf: "er hat begriffen", sens: "comprendre" },
-  { inf: "beschließen", pres: "er beschließt", pret: "er beschloss", parf: "er hat beschlossen", sens: "décider" },
-  { inf: "beschreiben", pres: "er beschreibt", pret: "er beschrieb", parf: "er hat beschrieben", sens: "décrire" },
-  { inf: "brechen", pres: "er bricht", pret: "er brach", parf: "er hat gebrochen", sens: "casser" },
-  { inf: "ein/laden", pres: "er lädt ein", pret: "er lud ein", parf: "er hat eingeladen", sens: "inviter" },
-  { inf: "ein/schlafen", pres: "er schläft ein", pret: "er schlief ein", parf: "er ist eingeschlafen", sens: "s'endormir" },
-  { inf: "empfangen", pres: "er empfängt", pret: "er empfing", parf: "er hat empfangen", sens: "recevoir" },
-  { inf: "empfehlen", pres: "er empfiehlt", pret: "er empfahl", parf: "er hat empfohlen", sens: "recommander" },
-  { inf: "erhalten", pres: "er erhält", pret: "er erhielt", parf: "er hat erhalten", sens: "obtenir" },
-  { inf: "ertragen", pres: "er erträgt", pret: "er ertrug", parf: "er hat ertragen", sens: "supporter" },
-  { inf: "fahren", pres: "er fährt", pret: "er fuhr", parf: "er ist gefahren", sens: "aller (en véhicule)" },
-  { inf: "finden", pres: "er findet", pret: "er fand", parf: "er hat gefunden", sens: "trouver" },
-  { inf: "geben", pres: "er gibt", pret: "er gab", parf: "er hat gegeben", sens: "donner" },
-  { inf: "gehen", pres: "er geht", pret: "er ging", parf: "er ist gegangen", sens: "aller" },
-  { inf: "helfen", pres: "er hilft", pret: "er half", parf: "er hat geholfen", sens: "aider" },
-  { inf: "kommen", pres: "er kommt", pret: "er kam", parf: "er ist gekommen", sens: "venir" },
-  { inf: "laufen", pres: "er läuft", pret: "er lief", parf: "er ist gelaufen", sens: "courir" },
-  { inf: "lesen", pres: "er liest", pret: "er las", parf: "er hat gelesen", sens: "lire" },
-  { inf: "nehmen", pres: "er nimmt", pret: "er nahm", parf: "er hat genommen", sens: "prendre" },
-  { inf: "rufen", pres: "er ruft", pret: "er rief", parf: "er hat gerufen", sens: "appeler" },
-  { inf: "schlafen", pres: "er schläft", pret: "er schlief", parf: "er hat geschlafen", sens: "dormir" },
-  { inf: "sehen", pres: "er sieht", pret: "er sah", parf: "er hat gesehen", sens: "voir" },
-  { inf: "sprechen", pres: "er spricht", pret: "er sprach", parf: "er hat gesprochen", sens: "parler" },
-  { inf: "stehen", pres: "er steht", pret: "er stand", parf: "er hat gestanden", sens: "être debout" },
-  { inf: "tragen", pres: "er trägt", pret: "er trug", parf: "er hat getragen", sens: "porter" },
-  { inf: "treffen", pres: "er trifft", pret: "er traf", parf: "er hat getroffen", sens: "rencontrer" },
-  { inf: "werden", pres: "er wird", pret: "er wurde", parf: "er ist geworden", sens: "devenir" },
-  { inf: "werfen", pres: "er wirft", pret: "er warf", parf: "er hat geworfen", sens: "jeter" },
-  { inf: "ziehen", pres: "er zieht", pret: "er zog", parf: "er ist gezogen", sens: "tirer / déménager" },
-  { inf: "backen", pres: "er bäckt", pret: "er backte", parf: "er hat gebacken", sens: "cuire au four" },
-  { inf: "befehlen", pres: "er befiehlt", pret: "er befahl", parf: "er hat befohlen", sens: "ordonner" },
-  { inf: "biegen", pres: "er biegt", pret: "er bog", parf: "er hat gebogen", sens: "plier" },
-  { inf: "bieten", pres: "er bietet", pret: "er bot", parf: "er hat geboten", sens: "offrir" },
-  { inf: "binden", pres: "er bindet", pret: "er band", parf: "er hat gebunden", sens: "attacher" },
-  { inf: "bitten", pres: "er bittet", pret: "er bat", parf: "er hat gebeten", sens: "demander" },
-  { inf: "blasen", pres: "er bläst", pret: "er blies", parf: "er hat geblasen", sens: "souffler" },
-  { inf: "fallen", pres: "er fällt", pret: "er fiel", parf: "er ist gefallen", sens: "tomber" },
-  { inf: "fangen", pres: "er fängt", pret: "er fing", parf: "er hat gefangen", sens: "attraper" },
-  { inf: "fliegen", pres: "er fliegt", pret: "er flog", parf: "er ist geflogen", sens: "voler" },
-  { inf: "fließen", pres: "er fließt", pret: "er floss", parf: "er ist geflossen", sens: "couler" },
-  { inf: "frieren", pres: "er friert", pret: "er fror", parf: "er hat gefroren", sens: "avoir froid / geler" },
-  { inf: "graben", pres: "er gräbt", pret: "er grub", parf: "er hat gegraben", sens: "creuser" },
-  { inf: "halten", pres: "er hält", pret: "er hielt", parf: "er hat gehalten", sens: "tenir" },
-  { inf: "hängen", pres: "er hängt", pret: "er hing", parf: "er hat gehangen", sens: "être suspendu" },
-  { inf: "heißen", pres: "er heißt", pret: "er hieß", parf: "er hat geheißen", sens: "s'appeler" },
-  { inf: "kneifen", pres: "er kneift", pret: "er kniff", parf: "er hat gekniffen", sens: "pincer" },
-  { inf: "laden", pres: "er lädt", pret: "er lud", parf: "er hat geladen", sens: "charger" },
-  { inf: "liegen", pres: "er liegt", pret: "er lag", parf: "er hat gelegen", sens: "être couché" },
-  { inf: "lügen", pres: "er lügt", pret: "er log", parf: "er hat gelogen", sens: "mentir" },
-  { inf: "messen", pres: "er misst", pret: "er maß", parf: "er hat gemessen", sens: "mesurer" },
-  { inf: "pfeifen", pres: "er pfeift", pret: "er pfiff", parf: "er hat gepfiffen", sens: "siffler" },
-  { inf: "raten", pres: "er rät", pret: "er riet", parf: "er hat geraten", sens: "conseiller / deviner" },
-  { inf: "reiten", pres: "er reitet", pret: "er ritt", parf: "er ist geritten", sens: "monter à cheval" },
-  { inf: "scheinen", pres: "er scheint", pret: "er schien", parf: "er hat geschienen", sens: "briller / sembler" },
-  { inf: "schlagen", pres: "er schlägt", pret: "er schlug", parf: "er hat geschlagen", sens: "frapper" },
-  { inf: "schneiden", pres: "er schneidet", pret: "er schnitt", parf: "er hat geschnitten", sens: "couper" },
-  { inf: "schreien", pres: "er schreit", pret: "er schrie", parf: "er hat geschrien", sens: "crier" },
-  { inf: "schweigen", pres: "er schweigt", pret: "er schwieg", parf: "er hat geschwiegen", sens: "se taire" },
-  { inf: "steigen", pres: "er steigt", pret: "er stieg", parf: "er ist gestiegen", sens: "monter" },
-  { inf: "trinken", pres: "er trinkt", pret: "er trank", parf: "er hat getrunken", sens: "boire" },
-  { inf: "schreiben", pres: "er schreibt", pret: "er schrieb", parf: "er hat geschrieben", sens: "écrire" },
-  { inf: "singen", pres: "er singt", pret: "er sang", parf: "er hat gesungen", sens: "chanter" },
-  { inf: "springen", pres: "er springt", pret: "er sprang", parf: "er ist gesprungen", sens: "sauter" },
-  { inf: "schwimmen", pres: "er schwimmt", pret: "er schwamm", parf: "er ist geschwommen", sens: "nager" },
-  { inf: "sterben", pres: "er stirbt", pret: "er starb", parf: "er ist gestorben", sens: "mourir" },
-  { inf: "verlieren", pres: "er verliert", pret: "er verlor", parf: "er hat verloren", sens: "perdre" },
-  { inf: "gewinnen", pres: "er gewinnt", pret: "er gewann", parf: "er hat gewonnen", sens: "gagner" },
-  { inf: "vergessen", pres: "er vergisst", pret: "er vergaß", parf: "er hat vergessen", sens: "oublier" },
-  { inf: "verstehen", pres: "er versteht", pret: "er verstand", parf: "er hat verstanden", sens: "comprendre" },
-
-  { inf: "waschen", pres: "er wäscht", pret: "er wusch", parf: "er hat gewaschen", sens: "laver" },
-  { inf: "wachsen", pres: "er wächst", pret: "er wuchs", parf: "er ist gewachsen", sens: "grandir / pousser" },
-  { inf: "waschen", pres: "er wäscht", pret: "er wusch", parf: "er hat gewaschen", sens: "laver" },
-  { inf: "weichen", pres: "er weicht", pret: "er wich", parf: "er ist gewichen", sens: "céder" },
-  { inf: "weisen", pres: "er weist", pret: "er wies", parf: "er hat gewiesen", sens: "indiquer" },
-
-  { inf: "ziehen", pres: "er zieht", pret: "er zog", parf: "er hat gezogen", sens: "tirer" },
-  { inf: "zwingen", pres: "er zwingt", pret: "er zwang", parf: "er hat gezwungen", sens: "forcer" },
-  { inf: "schmelzen", pres: "er schmilzt", pret: "er schmolz", parf: "er ist geschmolzen", sens: "fondre" },
-  { inf: "schließen", pres: "er schließt", pret: "er schloss", parf: "er hat geschlossen", sens: "fermer" },
-  { inf: "lügen", pres: "er lügt", pret: "er log", parf: "er hat gelogen", sens: "mentir" },
-
-  { inf: "steigen", pres: "er steigt", pret: "er stieg", parf: "er ist gestiegen", sens: "monter" },
-  { inf: "streiten", pres: "er streitet", pret: "er stritt", parf: "er hat gestritten", sens: "se disputer" },
-  { inf: "treiben", pres: "er treibt", pret: "er trieb", parf: "er hat getrieben", sens: "pousser / pratiquer" },
-  { inf: "tun", pres: "er tut", pret: "er tat", parf: "er hat getan", sens: "faire" },
-  { inf: "verzeihen", pres: "er verzeiht", pret: "er verzieh", parf: "er hat verziehen", sens: "pardonner" },
-
-  { inf: "winden", pres: "er windet", pret: "er wand", parf: "er hat gewunden", sens: "tordre" },
-  { inf: "werfen", pres: "er wirft", pret: "er warf", parf: "er hat geworfen", sens: "jeter" },
-  { inf: "ziehen", pres: "er zieht", pret: "er zog", parf: "er ist gezogen", sens: "déménager" },
-  { inf: "sinken", pres: "er sinkt", pret: "er sank", parf: "er ist gesunken", sens: "couler" },
-  { inf: "stinken", pres: "er stinkt", pret: "er stank", parf: "er hat gestunken", sens: "puer" },
-
-  { inf: "schelten", pres: "er schilt", pret: "er schalt", parf: "er hat gescholten", sens: "gronder" },
-  { inf: "scheren", pres: "er schert", pret: "er schor", parf: "er hat geschoren", sens: "tondre" },
-  { inf: "schieben", pres: "er schiebt", pret: "er schob", parf: "er hat geschoben", sens: "pousser" },
-  { inf: "schwören", pres: "er schwört", pret: "er schwor", parf: "er hat geschworen", sens: "jurer" },
-  { inf: "sieden", pres: "er siedet", pret: "er sott", parf: "er hat gesotten", sens: "bouillir" },
-
-  { inf: "verderben", pres: "er verdirbt", pret: "er verdarb", parf: "er ist verdorben", sens: "gâcher" },
-  { inf: "wiegen", pres: "er wiegt", pret: "er wog", parf: "er hat gewogen", sens: "peser" },
-  { inf: "zeihen", pres: "er zeiht", pret: "er zieh", parf: "er hat geziehen", sens: "accuser" },
-  { inf: "zerschneiden", pres: "er zerschneidet", pret: "er zerschnitt", parf: "er hat zerschnitten", sens: "découper" },
-  { inf: "ziehen", pres: "er zieht", pret: "er zog", parf: "er hat gezogen", sens: "tirer" },
-
-  { inf: "ab/biegen", pres: "er biegt ab", pret: "er bog ab", parf: "er hat abgebogen", sens: "tourner" },
-  { inf: "ab/nehmen", pres: "er nimmt ab", pret: "er nahm ab", parf: "er hat abgenommen", sens: "perdre du poids / enlever" },
-  { inf: "an/binden", pres: "er bindet an", pret: "er band an", parf: "er hat angebunden", sens: "attacher" },
-  { inf: "auf/brechen", pres: "er bricht auf", pret: "er brach auf", parf: "er ist aufgebrochen", sens: "partir / forcer" },
-  { inf: "auf/essen", pres: "er isst auf", pret: "er aß auf", parf: "er hat aufgegessen", sens: "finir de manger" },
-  { inf: "auf/fallen", pres: "er fällt auf", pret: "er fiel auf", parf: "er ist aufgefallen", sens: "frapper l’attention" },
-  { inf: "auf/geben", pres: "er gibt auf", pret: "er gab auf", parf: "er hat aufgegeben", sens: "abandonner" },
-  { inf: "auf/stehen", pres: "er steht auf", pret: "er stand auf", parf: "er ist aufgestanden", sens: "se lever" },
-  { inf: "aus/steigen", pres: "er steigt aus", pret: "er stieg aus", parf: "er ist ausgestiegen", sens: "descendre (véhicule)" },
-  { inf: "bei/beißen", pres: "er beißt zu", pret: "er biss zu", parf: "er hat zugebissen", sens: "mordre" },
-
-  { inf: "behalten", pres: "er behält", pret: "er behielt", parf: "er hat behalten", sens: "garder" },
-  { inf: "bei/bringen", pres: "er bringt bei", pret: "er brachte bei", parf: "er hat beigebracht", sens: "apprendre (enseigner)" },
-  { inf: "ein/werfen", pres: "er wirft ein", pret: "er warf ein", parf: "er hat eingeworfen", sens: "jeter dedans" },
-  { inf: "ein/ziehen", pres: "er zieht ein", pret: "er zog ein", parf: "er ist eingezogen", sens: "emménager" },
-  { inf: "empfinden", pres: "er empfindet", pret: "er empfand", parf: "er hat empfunden", sens: "ressentir" },
-  { inf: "ent/kommen", pres: "er kommt ent", pret: "er kam ent", parf: "er ist entkommen", sens: "s’échapper" },
-  { inf: "ent/stehen", pres: "er entsteht", pret: "er entstand", parf: "er ist entstanden", sens: "naître / surgir" },
-  { inf: "erkennen", pres: "er erkennt", pret: "er erkannte", parf: "er hat erkannt", sens: "reconnaître" },
-  { inf: "erwägen", pres: "er erwägt", pret: "er erwog", parf: "er hat erwogen", sens: "envisager" },
-  { inf: "essen", pres: "er isst", pret: "er aß", parf: "er hat gegessen", sens: "manger" },
-
-  { inf: "fest/halten", pres: "er hält fest", pret: "er hielt fest", parf: "er hat festgehalten", sens: "retenir" },
-  { inf: "fort/fahren", pres: "er fährt fort", pret: "er fuhr fort", parf: "er ist fortgefahren", sens: "continuer / partir" },
-  { inf: "fort/gehen", pres: "er geht fort", pret: "er ging fort", parf: "er ist fortgegangen", sens: "s’en aller" },
-  { inf: "frei/geben", pres: "er gibt frei", pret: "er gab frei", parf: "er hat freigegeben", sens: "libérer" },
-  { inf: "hin/fallen", pres: "er fällt hin", pret: "er fiel hin", parf: "er ist hingefallen", sens: "tomber" },
-  { inf: "hin/kommen", pres: "er kommt hin", pret: "er kam hin", parf: "er ist hingekommen", sens: "arriver" },
-  { inf: "los/lassen", pres: "er lässt los", pret: "er ließ los", parf: "er hat losgelassen", sens: "lâcher" },
-  { inf: "mit/bringen", pres: "er bringt mit", pret: "er brachte mit", parf: "er hat mitgebracht", sens: "apporter avec soi" },
-  { inf: "mit/nehmen", pres: "er nimmt mit", pret: "er nahm mit", parf: "er hat mitgenommen", sens: "emporter" },
-  { inf: "nach/denken", pres: "er denkt nach", pret: "er dachte nach", parf: "er hat nachgedacht", sens: "réfléchir" },
-
-  { inf: "preis/geben", pres: "er gibt preis", pret: "er gab preis", parf: "er hat preisgegeben", sens: "divulguer" },
-  { inf: "statt/finden", pres: "er findet statt", pret: "er fand statt", parf: "er hat stattgefunden", sens: "avoir lieu" },
-  { inf: "teil/nehmen", pres: "er nimmt teil", pret: "er nahm teil", parf: "er hat teilgenommen", sens: "participer" },
-  { inf: "über/geben", pres: "er gibt über", pret: "er gab über", parf: "er hat übergeben", sens: "remettre / vomir" },
-  { inf: "über/nehmen", pres: "er übernimmt", pret: "er übernahm", parf: "er hat übernommen", sens: "reprendre / assumer" },
-  { inf: "um/steigen", pres: "er steigt um", pret: "er stieg um", parf: "er ist umgestiegen", sens: "changer (transport)" },
-  { inf: "unter/gehen", pres: "er geht unter", pret: "er ging unter", parf: "er ist untergegangen", sens: "sombrer / se coucher" },
-  { inf: "ver/geben", pres: "er vergibt", pret: "er vergab", parf: "er hat vergeben", sens: "pardonner" },
-  { inf: "ver/lassen", pres: "er verlässt", pret: "er verließ", parf: "er hat verlassen", sens: "quitter" },
-  { inf: "ver/meiden", pres: "er vermeidet", pret: "er vermied", parf: "er hat vermieden", sens: "éviter" },
-
-  { inf: "vor/lesen", pres: "er liest vor", pret: "er las vor", parf: "er hat vorgelesen", sens: "lire à voix haute" },
-  { inf: "weg/werfen", pres: "er wirft weg", pret: "er warf weg", parf: "er hat weggeworfen", sens: "jeter" },
-  { inf: "weiter/geben", pres: "er gibt weiter", pret: "er gab weiter", parf: "er hat weitergegeben", sens: "transmettre" },
-  { inf: "zu/binden", pres: "er bindet zu", pret: "er band zu", parf: "er hat zugebunden", sens: "attacher" },
-  { inf: "zu/geben", pres: "er gibt zu", pret: "er gab zu", parf: "er hat zugegeben", sens: "avouer" },
-  { inf: "zu/nehmen", pres: "er nimmt zu", pret: "er nahm zu", parf: "er hat zugenommen", sens: "prendre du poids" },
-  { inf: "zurück/kommen", pres: "er kommt zurück", pret: "er kam zurück", parf: "er ist zurückgekommen", sens: "revenir" },
-  { inf: "zusammen/kommen", pres: "er kommt zusammen", pret: "er kam zusammen", parf: "er ist zusammengekommen", sens: "se réunir" },
-  { inf: "zunehmen", pres: "er nimmt zu", pret: "er nahm zu", parf: "er hat zugenommen", sens: "augmenter" }
-];
-
-function getDictionnaireVerbes() {
-  const dict = {};
-
-  // verbes de base
-  verbes.forEach(v => {
-    dict[v.inf.toLowerCase()] = v;
-  });
-
-  // verbes personnalisés (toutes listes)
-  Object.values(listesPerso).forEach(liste => {
-    liste.forEach(v => {
-      dict[v.inf.toLowerCase()] = v;
-    });
-  });
-
-  return dict;
-}
-
-
-// ============VERBES PERSONNALISéS =================//
-
-//listesPerso = {
-//  "Ma liste 1": [ {inf, pres, ...}, ... ],
-//  "Verbes difficiles": [ ... ],
-//  "Cours allemand": [ ... ]
-//}
-
-function supprimerListe(nom) {
-  if (!confirm(`Supprimer la liste "${nom}" ?`)) return;
-  delete listesPerso[nom];
-  localStorage.setItem("listesPerso", JSON.stringify(listesPerso));
-  afficherListes();
-}
-
-
-let listesPerso =
-  JSON.parse(localStorage.getItem("listesPerso")) || {};
-
-let listePersoActive = null;
-
-    let verbesPersonnalises =
-        JSON.parse(localStorage.getItem("verbesPerso")) || [];
-
-  let verbesDeBase = [...verbes];
-  let verbesActifs = verbesDeBase;
-
-
-function creerListe() {
-  const nom = nomListe.value.trim();
-  if (!nom || listesPerso[nom]) {
-    alert("Nom invalide ou déjà existant");
-    return;
-  }
-
-  listesPerso[nom] = [];
-  localStorage.setItem("listesPerso", JSON.stringify(listesPerso));
-  nomListe.value = "";
-  afficherListes();
-}
-
-function afficherListes() {
-  const div = document.getElementById("listesExistantes");
-  div.innerHTML = "<h3>📚 Listes existantes</h3>";
-
-  Object.keys(listesPerso).forEach(nom => {
-    const container = document.createElement("div");
-
-    const span = document.createElement("span");
-    span.textContent = nom;
-
-    const btnEdit = document.createElement("button");
-    btnEdit.textContent = "✏️";
-    btnEdit.addEventListener("click", () => ouvrirListe(nom));
-
-    const btnDelete = document.createElement("button");
-    btnDelete.textContent = "❌";
-    btnDelete.addEventListener("click", () => supprimerListe(nom));
-
-    container.appendChild(span);
-    container.appendChild(btnEdit);
-    container.appendChild(btnDelete);
-
-    div.appendChild(container);
-  });
-}
-
-// autocompletion verbe personnalisé lors de la saisie
-function autoCompleterVerbe() {
-  const inf = p_inf.value.trim().toLowerCase();
-  if (!inf) return;
-
-  const dict = getDictionnaireVerbes();
-  const verbe = dict[inf];
-
-  if (verbe) {
-    p_pres.value = verbe.pres || "";
-    p_pret.value = verbe.pret || "";
-    p_parf.value = verbe.parf || "";
-    p_sens.value = verbe.sens || "";
-
-    p_pres.disabled = true;
-    p_pret.disabled = true;
-    p_parf.disabled = true;
-    p_sens.disabled = true;
-  } else {
-    p_pres.disabled = false;
-    p_pret.disabled = false;
-    p_parf.disabled = false;
-    p_sens.disabled = false;
-  }
-}
-
-
-// =========== VERBES DÉBLOQUÉS ==============
-function getVerbesDebloques(listeVerbes) {
-  const TAILLE_GROUPE = 5;
-  let groupesDebloques = 1; // le 1er est toujours dispo
-
-  for (let i = 0; i < listeVerbes.length; i += TAILLE_GROUPE) {
-    const groupe = listeVerbes.slice(i, i + TAILLE_GROUPE);
-
-    const maitrisés = groupe.filter(v =>
-      stats[v.inf] && stats[v.inf].maitrise >= 3 // les verbes suivants sont débloqués quand tous les premiers verbes sont maîtrisés
-    ).length;
-
-    if (maitrisés >= 3) {
-      groupesDebloques++;
-      console.log("Groupes débloqués");
-    } else {
-      break;
-    }
-  }
-
-  return listeVerbes.slice(0, groupesDebloques * TAILLE_GROUPE);
-}
-
-
-
-// ================== NORMALISATION ==================
-function normaliser(texte) {
-  return texte.trim().toLowerCase();
-}
-
-// ================ ANIMATION QUAND ON RÉUSSI UN VERBE ==============
-
-function animationBonneReponse() {
-  const card = document.querySelector(".card");
-  card.classList.remove("success-animation"); // reset
-  void card.offsetWidth; // force reflow
-  card.classList.add("success-animation");
-}
-
-
-// ================== SUCCÈS ====================
-const SUCCES = [
-  {
-    id: "premier_verbe",
-    titre: "Première victoire 🎉",
-    description: "Réviser ton premier verbe",
-    condition: () => {
-      return Object.values(stats).some(s => s.propositions >= 1);
-    }
-  },
-  {
-    id: "10_maitrises",
-    titre: "Ça rentre ! 💪",
-    description: "Atteindre 10 maîtrises",
-    condition: () => {
-      return Object.values(stats).reduce((s, v) => s + v.maitrise, 0) >= 10;
-    }
-  },
-  {
-    id: "streak_7",
-    titre: "Régularité 🔥",
-    description: "Série de 7 jours consécutifs",
-    condition: () => {
-      const streak = JSON.parse(localStorage.getItem("streak")) || { count: 0 };
-      return streak.count >= 7;
-    }
-  },
-  {
-    id: "sans_faute",
-    titre: "Sans faute 🧠",
-    description: "3 réponses parfaites d’affilée",
-    condition: () => {
-      return succesState.perfectStreak >= 3;
-    }
-  },
-  {
-  id: "verbe_maitrise",
-  titre: "Sous contrôle ✅",
-  description: "Maîtriser complètement un verbe",
-  condition: () => {
-    return Object.values(stats).some(v => v.maitrise >= 5);
-    }
-  },
-  {
-  id: "revanche",
-  titre: "Revanche 🔁",
-  description: "Transformer un verbe problématique en verbe maîtrisé",
-  condition: () => {
-      return Object.values(stats).some(v => v.erreurs >= 3 && v.maitrise >= 5);
-    }
-  },
-{
-  id: "50_propositions",
-  titre: "Ça travaille 📚",
-  description: "Réviser 50 verbes au total",
-  condition: () => {
-    return Object.values(stats)
-      .reduce((s, v) => s + v.propositions, 0) >= 50;
-  }
-},
-{
-  id: "100_propositions",
-  titre: "Machine à verbes 🤖",
-  description: "Réviser 100 verbes au total",
-  condition: () => {
-    return Object.values(stats)
-      .reduce((s, v) => s + v.propositions, 0) >= 100;
-  }
-},
-{
-  id: "verbes_problematiques",
-  titre: "Face à la difficulté 🧱",
-  description: "Réviser 10 fois des verbes problématiques",
-  condition: () => {
-    return sessionStats.problematiquesRevises >= 10;
-  }
-},
-{
-  id: "tout_vert",
-  titre: "Tout au vert ✅",
-  description: "Avoir 5 verbes en zone maîtrisée",
-  condition: () => {
-    return Object.values(stats)
-      .filter(v => v.maitrise >= 5 && v.erreurs === 0).length >= 5;
-  }
-},
-{
-  id: "createur_verbes",
-  titre: "Créateur 📖",
-  description: "Créer 10 verbes personnalisés",
-  condition: () => {
-    return Object.keys(verbesPersonnalises || {}).length >= 10;
-  }
-},
-{
-  id: "exporteur",
-  titre: "Sauvegarde 🔐",
-  description: "Exporter ses statistiques ou ses verbes",
-  condition: () => {
-    return succesState.exportEffectue === true;
-  }
-},
-{
-  id: "importeur",
-  titre: "Retour gagnant 🔄",
-  description: "Importer des statistiques ou une liste",
-  condition: () => {
-    return succesState.importEffectue === true;
-  }
-},
-{
-  id: "revision_planifiee",
-  titre: "Mémoire longue 🧠",
-  description: "Compléter 5 révisions planifiées",
-  condition: () => {
-    return succesState.revisionsPlanifiees >= 5;
-  }
-},
-{
-  id: "streak_30",
-  titre: "Habitude ancrée 🔥",
-  description: "Série de 30 jours consécutifs",
-  condition: () => {
-    const streak = JSON.parse(localStorage.getItem("streak")) || { count: 0 };
-    return streak.count >= 30;
-  }
-},
-{
-  id: "perfectionniste",
-  titre: "Perfectionniste ✨",
-  description: "Répondre parfaitement à 10 verbes consécutifs",
-  condition: () => {
-    return succesState.perfectStreak >= 10;
-  }
-}
-
-];
-
-let succesState = JSON.parse(localStorage.getItem("succes")) || {
-  debloques: [],
-  perfectStreak: 0
-};
-
-function verifierSucces() {
-  let nouveau = false;
-
-  SUCCES.forEach(s => {
-    if (!succesState.debloques.includes(s.id) && s.condition()) {
-      succesState.debloques.push(s.id);
-      afficherSucces(s);
-      nouveau = true;
-    }
-  });
-
-  if (nouveau) {
-    localStorage.setItem("succes", JSON.stringify(succesState));
-  }
-}
-
-function afficherSucces(succes) {
-  const div = document.createElement("div");
-  div.style.position = "fixed";
-  div.style.bottom = "20px";
-  div.style.right = "20px";
-  div.style.background = "#ffd700";
-  div.style.padding = "15px";
-  div.style.borderRadius = "10px";
-  div.style.boxShadow = "0 4px 10px rgba(0,0,0,.2)";
-  div.style.zIndex = 9999;
-  div.innerHTML = `
-    <strong>🏆 Succès débloqué !</strong><br>
-    ${succes.titre}<br>
-    <small>${succes.description}</small>
-  `;
-
-  document.body.appendChild(div);
-
-  setTimeout(() => div.remove(), 4000);
-}
-
-
-// ================== VARIABLES ==================
-let mode = "random";
-let current = null;
-let questionType = "classique";
-
-const youpiAudio = document.getElementById("youpiAudio");
-const eOhAudio = document.getElementById("eOhAudio");
-
-let stats = JSON.parse(localStorage.getItem("stats")) || {};
-let streak = JSON.parse(localStorage.getItem("streak")) || {
-  count: 0,
-  lastDate: null
-};
-
-verbes.forEach(v => {
-  if (!stats[v.inf]) stats[v.inf] = stats[inf] = {
-  propositions: 0,
-  erreurs: 0,
-  maitrise: 0,
-  nextReview: null,   // timestamp
-  interval: 0         // index d’intervalle
-};
-;
-});
-
-let cacheTousLesVerbes = [];
-
-const TAILLE_GROUPE = 5;
-
-function getGroupIndex(index) {
-  return Math.floor(index / TAILLE_GROUPE);
-}
-
-function groupesDebloques() {
-  let groupes = [];
-
-  for (let i = 0; i < verbes.length; i += TAILLE_GROUPE) {
-    const groupe = verbes.slice(i, i + TAILLE_GROUPE);
-
-    const maitriseOK = groupe.every(v => stats[v.inf]?.maitrise >= 1);
-
-    groupes.push({
-      debut: i + 1,
-      fin: Math.min(i + TAILLE_GROUPE, verbes.length),
-      debloque: maitriseOK
-    });
-
-    if (!maitriseOK) break;
-  }
-
-  return groupes;
-}
-
-// =================Notifications ========
-
-function verifierRevisions() {
-  if (localStorage.getItem("notificationsActivees") !== "true") return;
-
-  const today = new Date().toISOString().slice(0,10);
-  const derniereNotif = localStorage.getItem("derniereNotification");
-
-  if (derniereNotif === today) return;
-
-  const aReviser = verbesEnAttenteDeRevision();
-
-  if (aReviser.length > 0) {
-    envoyerNotification(aReviser.length);
-    localStorage.setItem("derniereNotification", today);
-  }
-}
-
-function activerNotifications() {
-  if (!("Notification" in window)) {
-    alert("Les notifications ne sont pas supportées par ce navigateur.");
-    return;
-  }
-
-  Notification.requestPermission().then(permission => {
-    if (permission === "granted") {
-      localStorage.setItem("notificationsActivees", "true");
-      alert("🔔 Notifications activées !");
-      verifierRevisions(); // test immédiat
-    } else {
-      alert("Notifications refusées.");
-    }
-  });
-}
-
-function verbesEnAttenteDeRevision() {
-  const maintenant = Date.now();
-  return verbes.filter(v => stats[v.inf]?.nextReview <= maintenant);
-}
-
-
-
-function envoyerNotification(nb) {
-  if (Notification.permission !== "granted") return;
-
-  new Notification("📘 Révision allemande", {
-    body: `Tu as ${nb} verbe(s) à réviser aujourd’hui 💪`,
-  });
-}
-
-verifierRevisions();
-setInterval(verifierRevisions, 60 * 60 * 1000); // toutes les heures
-
-
-function desactiverNotifications() {
-  localStorage.setItem("notificationsActivees", "false");
-  localStorage.removeItem("derniereNotification");
-
-  alert("🔕 Notifications désactivées");
-
-  document.getElementById("btnActiverNotif").classList.remove("hidden");
-  document.getElementById("btnDesactiverNotif").classList.add("hidden");
-}
-
-function majBoutonsNotifications() {
-  const actives = localStorage.getItem("notificationsActivees") === "true";
-
-  document.getElementById("btnActiverNotif").classList.toggle("hidden", actives);
-  document.getElementById("btnDesactiverNotif").classList.toggle("hidden", !actives);
-}
-
-majBoutonsNotifications();
-
-document.getElementById("etatNotif").textContent =
-  localStorage.getItem("notificationsActivees") === "true"
-  ? "🔔 Activées"
-  : "🔕 Désactivées";
-
-
-// ================== PALIERS ==================
-function getNombrePaliersDebloques() {
-  let paliers = 1;
-  while (true) {
-    const debut = (paliers - 1) * TAILLE_PALIER;
-    const groupe = verbes.slice(debut, debut + TAILLE_PALIER);
-    if (groupe.length < TAILLE_PALIER) break;
-    if (groupe.every(v => stats[v.inf].maitrise >= SEUIL_MAITRISE)) paliers++;
-    else break;
-  }
-  return paliers;
-}
-
-function verbesDisponibles() {
-  const groupes = groupesDebloques();
-  let maxIndex = groupes.length * TAILLE_GROUPE;
-
-  // Réactivation de verbes anciens (spaced repetition)
-  let anciens = verbesActifs.slice(0, maxIndex - TAILLE_GROUPE);
-  let nouveaux = verbesActifs.slice(0, maxIndex);
-
-  return Math.random() < 0.3 && anciens.length ? anciens : nouveaux;
-}
-
-function choisirVerbe() {
-  const verbesDisponibles = getVerbesDebloques(verbesActifs);
-
-  // réactivation d'anciens verbes (oubli contrôlé)
-  const anciens = verbesDisponibles.filter(v =>
-    stats[v.inf].erreurs > stats[v.inf].maitrise
-  );
-
-  let pool = verbesDisponibles;
-
-  // 30 % de chance de revoir un ancien verbe
-  if (anciens.length > 0 && Math.random() < 0.3) {
-    pool = anciens;
-  }
-
-  return pool[Math.floor(Math.random() * pool.length)];
-}
-
-function afficherStats() {
-  document.getElementById("menu").classList.add("hidden");
-  document.getElementById("quiz").classList.add("hidden");
-  document.getElementById("statsPanel").classList.remove("hidden");
-
-  let total = 0, erreurs = 0, maitrise = 0;
-
-  Object.values(stats).forEach(s => {
-    total += s.propositions;
-    erreurs += s.erreurs;
-    maitrise += s.maitrise;
-  });
-
-  const groupes = groupesDebloques();
-
-  let html = `
-    <p>📘 Réponses totales : <strong>${total}</strong></p>
-    <p>❌ Erreurs : <strong>${erreurs}</strong></p>
-    <p>⭐ Maîtrises : <strong>${maitrise}</strong></p>
-    <hr>
-    <h3>📦 Groupes débloqués</h3>
-  `;
-
-  groupes.forEach((g, i) => {
-    html += `
-      <p>
-        Groupe ${i + 1} (verbes ${g.debut}–${g.fin}) :
-        ${g.debloque ? "✅ Débloqué" : "🔒 Verrouillé"}
+  <!-- HEADER -->
+  <button onclick="goToGermanMenu()" style="font-size: 20px; background: none; border: none; cursor: pointer; padding: 0; margin-top: -15px; margin-bottom: -10px; position: fixed; text-align: left;">🏠</button>
+
+  <!-- MENU PRINCIPAL -->
+  <div id="menu" class="card">
+    <h1>📘 Verbes irréguliers allemands</h1>
+
+    <div>
+      <button onclick="startQuizMode()">🎯 Révision ciblée</button>
+      <button onclick="openCustomLists()">🧩 Listes personnalisées</button>
+      <button onclick="afficherMiniJeux()">🎮 Mini-Jeux</button>
+      <button onclick="openStats()">📊 Statistiques</button>
+      <button id="btnActiverNotif" onclick="activerNotifications()">🔔 Activer les notifications</button>
+      <button id="btnDesactiverNotif" class="hidden" onclick="desactiverNotifications()">🔕 Désactiver les notifications</button>
+      <button onclick="openPomodoro()">🍅 Pomodoro</button>
+      <button onclick="openSettings()">⚙️ Paramètres</button>
+      
+      <p style="text-align: center; margin-top: 10px;">
+        🔥 Série actuelle : <strong id="streakMenu">0</strong> jour(s)
       </p>
-    `;
-  });
-
-  document.getElementById("statsContent").innerHTML = html;
-  const streak = JSON.parse(localStorage.getItem("streak")) || { count: 0 };
-
-html += `
-  <hr>
-  <h3>🔥 Série de jours</h3>
-  <p>
-    Série actuelle :
-    <strong style="font-size:18px;">
-      ${streak.count} jour${streak.count > 1 ? "s" : ""}
-    </strong>
-  </p>
-`;
-
-html += `
-  <hr>
-  <h3>🏆 Succès</h3>
-`;
-
-SUCCES.forEach(s => {
-  const debloque = succesState.debloques.includes(s.id);
-  html += `
-    <div style="
-      padding:8px;
-      margin-bottom:6px;
-      border-radius:6px;
-      background:${debloque ? "#d4edda" : "#eee"};
-      opacity:${debloque ? "1" : "0.5"};
-    ">
-      <strong>${debloque ? "✅" : "🔒"} ${s.titre}</strong><br>
-      <small>${s.description}</small>
+      <p style="font-size: 8px; margin-top: -10px; margin-bottom: -10px;">© 2026 Rémi Caitucoli Zimmermann — Licensé sous license GPL-3.0</p>
     </div>
-  `;
-});
-
-  document.getElementById("statsContent").innerHTML = html;
-
-}
-
-function fermerStats() {
-  document.getElementById("statsPanel").classList.add("hidden");
-  document.getElementById("menu").classList.remove("hidden");
-}
-
-
-// =========== STREAK JOURNALIER ==================
-function majStreak() {
-  const today = new Date().toISOString().slice(0, 10);
-
-  if (streak.lastDate === today) return; // déjà compté aujourd’hui
-
-  if (!streak.lastDate) {
-    streak.count = 1;
-  } else {
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    const yestStr = yesterday.toISOString().slice(0, 10);
-
-    if (streak.lastDate === yestStr) {
-      streak.count++;
-    } else {
-      streak.count = 1; // streak cassée
-    }
-  }
-
-  streak.lastDate = today;
-  localStorage.setItem("streak", JSON.stringify(streak));
-}
-
-
-// ================== QUIZ ==================
-function start(m) {
-  mode = m;
-  menu.classList.add("hidden");
-  quiz.classList.remove("hidden");
-  next();
-}
-
-function next() {
-  current = choisirVerbe();
-  stats[current.inf].propositions++;
-
-  questionType = QUESTION_TYPES[Math.floor(Math.random()*QUESTION_TYPES.length)];
-
-  inf.textContent = "";
-  sens.textContent = "";
-  extraInput.value = "";
-  pres.value = pret.value = parf.value = "";
-
-  extraLabel.classList.add("hidden");
-  presLabel.classList.remove("hidden");
-  pretLabel.classList.remove("hidden");
-  parfLabel.classList.remove("hidden");
-
-  if (questionType === "classique") {
-    inf.textContent = current.inf;
-    sens.textContent = current.sens;
-  }
-
-  if (questionType === "sens_inf") {
-    sens.textContent = current.sens;
-    extraLabel.classList.remove("hidden");
-    presLabel.classList.add("hidden");
-    pretLabel.classList.add("hidden");
-    parfLabel.classList.add("hidden");
-  }
-
-  if (questionType === "inf_sens") {
-    inf.textContent = current.inf;
-    extraLabel.classList.remove("hidden");
-    presLabel.classList.add("hidden");
-    pretLabel.classList.add("hidden");
-    parfLabel.classList.add("hidden");
-  }
-
-  result.innerHTML = "";
-  nextBtn.classList.add("hidden");
-  messageEncouragement.classList.add("hidden");
-}
-
-function normaliserAvancee(texte) {
-  return texte
-    .trim()
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
-}
-
-function reponseCorrecte(userInput, solutions) {
-  const user = normaliserAvancee(userInput);
-  return solutions
-    .split(/[,/]/)
-    .map(s => normaliserAvancee(s))
-    .some(s => s === user);
-}
-
-function comparaisonVisuelle(userInput, solution) { //affiche quels sont les erreurs caractères par caractères
-  let html = "";
-  const max = Math.max(userInput.length, solution.length);
-
-  for (let i = 0; i < max; i++) {
-    const u = userInput[i] || "";
-    const s = solution[i] || "";
-
-    if (u === s) {
-      html += `<span style="color:green">${u}</span>`;
-    } else {
-      html += `<span style="color:red">${u || "␣"}</span>`;
-    }
-  }
-  return html;
-}
-
-
-
-function check() {
-  let score = 0;
-  let feedback = "";
-
-  if (questionType === "classique") {
-
-    if (normaliserAvancee(pres.value) === normaliserAvancee(current.pres)) {
-      score++;
-    } else {
-      feedback += `<br>Présent : ${comparaisonVisuelle(pres.value, current.pres)}`;
-    }
-
-    if (normaliserAvancee(pret.value) === normaliserAvancee(current.pret)) {
-      score++;
-    } else {
-      feedback += `<br>Prétérit : ${comparaisonVisuelle(pret.value, current.pret)}`;
-    }
-
-    if (normaliserAvancee(parf.value) === normaliserAvancee(current.parf)) {
-      score++;
-    } else {
-      feedback += `<br>Parfait : ${comparaisonVisuelle(parf.value, current.parf)}`;
-    }
-  }
-
-  if (questionType === "sens_inf") {
-    if (reponseCorrecte(extraInput.value, current.inf)) score = 3;
-    else feedback = comparaisonVisuelle(extraInput.value, current.inf);
-  }
-
-  if (questionType === "inf_sens") {
-    if (reponseCorrecte(extraInput.value, current.sens)) score = 3;
-    else feedback = comparaisonVisuelle(extraInput.value, current.sens.split(/[,/]/)[0]);
-  }
-
-if (score === 3) {
-  stats[current.inf].maitrise++;
-  youpiAudio.play();
-  animationBonneReponse();
-}
- else {
-    stats[current.inf].erreurs++;
-    eOhAudio.play();
-  }
-
-  localStorage.setItem("stats", JSON.stringify(stats));
-
-  result.innerHTML = `
-    <strong>Correction :</strong><br>
-    Infinitif : ${current.inf}<br>
-    Sens : ${current.sens}<br>
-    Présent : ${current.pres}<br>
-    Prétérit : ${current.pret}<br>
-    Parfait : ${current.parf}<br>
-    🎯 Score : ${score}/3
-    ${feedback ? "<hr>🛠 Détails :<br>" + feedback : ""}
-  `;
-
-  if (score === 3) nextBtn.classList.remove("hidden");
-  else messageEncouragement.classList.remove("hidden");
-  majStreak();
-  if (score === 3) {
-  succesState.perfectStreak++;
-} else {
-  succesState.perfectStreak = 0;
-}
-
-verifierSucces();
-localStorage.setItem("succes", JSON.stringify(succesState));
-
-}
-
-
-// IMPORTER EXPORTER STATISTIQUE
-
-
-
-function exporterDonnees() {
-  const data = {
-    stats: JSON.parse(localStorage.getItem("stats")) || {},
-    progression: JSON.parse(localStorage.getItem("progression")) || {},
-    streak: JSON.parse(localStorage.getItem("streak")) || {},
-    notificationsActivees: localStorage.getItem("notificationsActivees"),
-    derniereNotification: localStorage.getItem("derniereNotification"),
-    dateExport: new Date().toISOString()
-  };
-
-  const blob = new Blob([JSON.stringify(data, null, 2)], {
-    type: "application/json"
-  });
-
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "verbes_allemands_stats.json";
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-function importerDonnees() {
-  document.getElementById("importFile").click();
-}
-
-document.getElementById("importFile").addEventListener("change", function () {
-  const file = this.files[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-
-  reader.onload = function (e) {
-    try {
-      const data = JSON.parse(e.target.result);
-
-      if (!data.stats) throw "Fichier invalide";
-
-      localStorage.setItem("stats", JSON.stringify(data.stats));
-      localStorage.setItem("progression", JSON.stringify(data.progression || {}));
-      localStorage.setItem("streak", JSON.stringify(data.streak || {count:0}));
-      localStorage.setItem("notificationsActivees", data.notificationsActivees || "false");
-
-      if (data.derniereNotification) {
-        localStorage.setItem("derniereNotification", data.derniereNotification);
-      }
-
-      alert("✅ Statistiques importées avec succès !");
-      location.reload();
-
-    } catch (err) {
-      alert("❌ Fichier invalide ou corrompu");
-    }
-  };
-
-  reader.readAsText(file);
-});
-
-
-
-
-//======= PDF EXPORTER ======
-
-
-function exporterPDF() {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-
-  const stats = JSON.parse(localStorage.getItem("stats")) || {};
-  const streak = JSON.parse(localStorage.getItem("streak")) || { count: 0 };
-
-  let y = 15;
-
-  // 📘 Titre
-  doc.setFontSize(18);
-  doc.text("Révision des verbes allemands", 10, y);
-  y += 10;
-
-  doc.setFontSize(10);
-  doc.text(`Exporté le : ${new Date().toLocaleDateString()}`, 10, y);
-  y += 10;
-
-  // 🔥 Streak
-  doc.setFontSize(12);
-  doc.text(`Streak actuel : ${streak.count || 0} jour(s)`, 10, y);
-  y += 10;
-
-  // 📊 Stats globales
-  let total = 0, mait = 0, erreurs = 0;
-
-  Object.values(stats).forEach(v => {
-    total += v.propositions || 0;
-    mait += v.maitrise || 0;
-    erreurs += v.erreurs || 0;
-  });
-
-  doc.text(`Statistiques globales`, 10, y);
-  y += 6;
-  doc.text(`• Tentatives : ${total}`, 12, y); y += 5;
-  doc.text(`• Maîtrises : ${mait}`, 12, y); y += 5;
-  doc.text(`• Erreurs : ${erreurs}`, 12, y); y += 10;
-
-  // 🔓 Groupes débloqués
-  const groupesDebloques = Math.floor(
-    Object.values(stats).filter(v => v.maitrise >= 3).length / 5
-  );
-
-  doc.text(`Groupes débloqués : ${groupesDebloques}`, 10, y);
-  y += 10;
-
-  // 🧠 Verbes maîtrisés
-  doc.text("Verbes maîtrisés :", 10, y);
-  y += 6;
-
-  Object.entries(stats)
-    .filter(([_, v]) => v.maitrise >= 3)
-    .slice(0, 15)
-    .forEach(([inf]) => {
-      doc.text(`• ${inf}`, 12, y);
-      y += 5;
-    });
-
-  y += 5;
-
-  // ⚠️ Verbes à revoir
-  doc.text("Verbes à revoir :", 10, y);
-  y += 6;
-
-  Object.entries(stats)
-    .filter(([_, v]) => v.erreurs > v.maitrise)
-    .slice(0, 10)
-    .forEach(([inf]) => {
-      doc.text(`• ${inf}`, 12, y);
-      y += 5;
-    });
-
-  // 📄 Téléchargement
-  doc.save("verbes_allemands_progression.pdf");
-}
-
-// =========  OUVRIR VERBES PERSO ===========
-
-function ouvrirVerbesPerso() {
-  document.getElementById("menu").classList.add("hidden");
-  document.getElementById("quiz").classList.add("hidden");
-  document.getElementById("verbesPerso").classList.remove("hidden");
-  afficherListes();
-//  afficherVerbesPerso();
-}
-
-function afficherVerbesListe() {
-  const div = document.getElementById("listeVerbesPerso");
-  const liste = listesPerso[listePersoActive];
-
-  div.innerHTML = "<h4>📖 Verbes</h4>";
-
-  liste.forEach((v, i) => {
-    div.innerHTML += `
-      <div>
-        ${v.inf} – ${v.sens}
-        <button onclick="supprimerVerbeListe(${i})">❌</button>
-      </div>
-    `;
-  });
-}
-
-function supprimerVerbeListe(index) {
-  listesPerso[listePersoActive].splice(index, 1);
-  localStorage.setItem("listesPerso", JSON.stringify(listesPerso));
-  afficherVerbesListe();
-}
-
-
-function ouvrirListe(nom) {
-  listePersoActive = nom;
-  document.getElementById("gestionListe").classList.remove("hidden");
-  document.getElementById("titreListe").textContent = `📘 ${nom}`;
-  afficherVerbesListe();
-}
-
-function ajouterVerbePerso() {
-  if (!listePersoActive) return;
-
-  const v = {
-    inf: p_inf.value.trim(),
-    pres: p_pres.value.trim(),
-    pret: p_pret.value.trim(),
-    parf: p_parf.value.trim(),
-    sens: p_sens.value.trim()
-  };
-
-if (!v.inf) {
-  alert("L'infinitif est obligatoire");
-  return;
-}
-
-if (!v.pres || !v.pret || !v.parf || !v.sens) {
-  alert("Verbe inconnu : merci de compléter toutes les formes");
-  return;
-}
-
-
-  listesPerso[listePersoActive].push(v);
-  localStorage.setItem("listesPerso", JSON.stringify(listesPerso));
-
-  if (!stats[v.inf]) {
-    stats[v.inf] = { propositions: 0, erreurs: 0, maitrise: 0 };
-    localStorage.setItem("stats", JSON.stringify(stats));
-  }
-
-  ["p_inf","p_pres","p_pret","p_parf","p_sens"].forEach(id => {
-    document.getElementById(id).value = "";
-  });
-[p_pres, p_pret, p_parf, p_sens].forEach(i => i.disabled = false);
-
-  afficherVerbesListe();
-
-}
-
-function reviserListePerso() {
-  const liste = listesPerso[listePersoActive];
-  if (!liste.length) {
-    alert("Liste vide");
-    return;
-  }
-
-  verbesActifs = liste;
-  mode = "random";
-
-  document.getElementById("verbesPerso").classList.add("hidden");
-  document.getElementById("quiz").classList.remove("hidden");
-
-  next();
-}
-
-
-function supprimerVerbePerso(index) {
-  const inf = verbesPersonnalises[index].inf;
-  verbesPersonnalises.splice(index, 1);
-
-  delete stats[inf];
-
-  localStorage.setItem("verbesPerso", JSON.stringify(verbesPersonnalises));
-  localStorage.setItem("stats", JSON.stringify(stats));
-  afficherVerbesPerso();
-}
-
-function reviserVerbesPerso() {
-  if (verbesPersonnalises.length === 0) {
-    alert("Aucun verbe personnalisé");
-    return;
-  }
-
-  verbesActifs = verbesPersonnalises;
-  mode = "random";
-
-  document.getElementById("verbesPerso").classList.add("hidden");
-  document.getElementById("quiz").classList.remove("hidden");
-
-  next();
-}
-
-function exporterListe() {
-  if (!listePersoActive) return;
-
-  const data = {
-    nom: listePersoActive,
-    verbes: listesPerso[listePersoActive]
-  };
-
-  const blob = new Blob(
-    [JSON.stringify(data, null, 2)],
-    { type: "application/json" }
-  );
-
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `${listePersoActive.replace(/\s+/g, "_")}.json`;
-  a.click();
-
-  URL.revokeObjectURL(url);
-}
-
-function importerListe(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-  reader.onload = e => {
-    try {
-      const data = JSON.parse(e.target.result);
-
-      if (!data.nom || !Array.isArray(data.verbes)) {
-        throw "Format invalide";
-      }
-
-      let nom = data.nom;
-
-      // éviter écrasement
-      if (listesPerso[nom]) {
-        let i = 2;
-        while (listesPerso[`${nom} (${i})`]) i++;
-        nom = `${nom} (${i})`;
-      }
-
-      listesPerso[nom] = data.verbes;
-
-      // init stats si absentes
-      data.verbes.forEach(v => {
-        if (!stats[v.inf]) {
-          stats[v.inf] = { propositions: 0, erreurs: 0, maitrise: 0 };
-        }
-      });
-
-      localStorage.setItem("listesPerso", JSON.stringify(listesPerso));
-      localStorage.setItem("stats", JSON.stringify(stats));
-
-      afficherListes();
-      alert(`Liste "${nom}" importée avec succès`);
-    } catch (e) {
-      alert("❌ Fichier invalide");
-    }
-  };
-
-  reader.readAsText(file);
-}
-
-// =============== AFFICHER TOUS LES VERBES DANS STATISTIQUE ======================
-function afficherTousLesVerbes() {
-  const container = document.getElementById("listeCompleteVerbes");
-  container.classList.remove("hidden");
-
-  // fusion verbes de base + verbes personnalisés
-  let tousLesVerbes = [...verbes];
-  cacheTousLesVerbes = tousLesVerbes;
-
-  Object.values(listesPerso).forEach(liste => {
-    liste.forEach(v => {
-      if (!tousLesVerbes.find(x => x.inf === v.inf)) {
-        tousLesVerbes.push(v);
-      }
-    });
-  });
-
-let html = `
-  <hr>
-  <h3>📋 Tous les verbes</h3>
-
-  <div style="margin-bottom:10px;">
-    <button onclick="filtrerVerbes('tous')">📋 Tous</button>
-    <button onclick="filtrerVerbes('probleme')">🔴 Problématiques</button>
-    <button onclick="filtrerVerbes('maitrise')">🟢 Maîtrisés</button>
-    <button onclick="filtrerVerbes('encours')">⚪ En cours</button>
-    <button onclick="reviserVerbesProblemes()">🎯 Réviser les verbes problématiques</button>
   </div>
 
-  <table style="width:100%; border-collapse:collapse;">
-    <thead>
-      <tr style="background:#eee;">
-        <th>Infinitif</th>
-        <th>Sens</th>
-        <th>⭐ Maîtrise</th>
-        <th>❌ Erreurs</th>
-        <th>🔁 Proposé</th>
-      </tr>
-    </thead>
-    <tbody id="tbodyVerbes">
-`;
+  <!-- AUDIO ELEMENTS -->
+  <audio id="youpiAudio" src="youpi.mp3"></audio>
+  <audio id="eOhAudio" src="e_oh.mp3"></audio>
+  <audio id="notifSound" src="notification.mp3"></audio>
+  <audio id="themeSwitchSound" src="switch.mp3"></audio>
+  <audio id="quackSound" src="Quack.ogg"></audio>
 
+  <!-- POMODORO PANEL -->
+  <div id="pomodoroPanel" class="card hidden"></div>
 
-  tousLesVerbes.forEach(v => {
-    const s = stats[v.inf] || { propositions: 0, erreurs: 0, maitrise: 0 };
+  <!-- SETTINGS PANEL -->
+  <div id="settingsPanel" class="card hidden">
+    <h1>⚙️ Paramètres</h1>
 
-    let classe = "verbe-neutre";
+    <!-- THEME SELECTOR -->
+    <div style="margin-bottom: 20px;">
+      <label style="display: block; margin-bottom: 10px; font-weight: bold;">🎨 Sélectionner un thème:</label>
+      <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+        <button onclick="changeTheme('light')" style="flex: 1; min-width: 80px;">☀️ Clair</button>
+        <button onclick="changeTheme('dark')" style="flex: 1; min-width: 80px;">🌙 Sombre</button>
+      </div>
+      <div style="display: flex; gap: 5px; flex-wrap: wrap; margin-top: 5px;">
+        <button onclick="changeTheme('dracula')" style="flex: 1; min-width: 80px;">🦇 Dracula</button>
+        <button onclick="changeTheme('nord')" style="flex: 1; min-width: 80px;">❄️ Nord</button>
+      </div>
+      <div style="display: flex; gap: 5px; flex-wrap: wrap; margin-top: 5px;">
+        <button onclick="changeTheme('colorful')" style="flex: 1; min-width: 80px;">🌈 Coloré</button>
+        <button onclick="changeTheme('highcontrast')" style="flex: 1; min-width: 80px;">⚫⚪ Contraste</button>
+      </div>
+    </div>
 
-    if (s.erreurs > s.maitrise) {
-      classe = "verbe-probleme";
-    } else if (s.maitrise >= 3 && s.erreurs <= s.maitrise) {
-      classe = "verbe-maitrise";
-    }
+    <!-- DYSLEXIC FONT SECTION -->
+    <div style="margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border);">
+      <button onclick="toggleDyslexicFont()" id="btnDyslexicSettings" style="width: 100%;">📖 Activer police dyslexique</button>
+    </div>
 
-    html += `
-      <tr class="${classe}">
-        <td>${v.inf}</td>
-        <td>${v.sens}</td>
-        <td style="text-align:center;">${s.maitrise}</td>
-        <td style="text-align:center;">${s.erreurs}</td>
-        <td style="text-align:center;">${s.propositions}</td>
-      </tr>
-    `;
-  });
+    <!-- DATA MANAGEMENT -->
+    <div style="margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border);">
+      <label style="display: block; margin-bottom: 10px; font-weight: bold;">📊 Gestion des données:</label>
+      <button onclick="exporterDonnees()" style="width: 100%; margin-bottom: 8px;">💾 Exporter mes progrès</button>
+      <button onclick="importerDonnees()" style="width: 100%;">📂 Importer mes progrès</button>
+    </div>
+    <!-- BACK BUTTON -->
+    <button onclick="closeSettings()" style="width: 100%; margin-top: 15px;">⬅ Retour</button>
+  </div>
 
+  <!-- QUIZ PANEL -->
+  <div id="quiz" class="card hidden">
+    <h1>📝 Quiz</h1>
 
-  html += `</table>
-    <button onclick="fermerListeComplete()">⬆ Masquer</button>
-  `;
+    <p><strong>Infinitif :</strong> <span id="inf"></span></p>
+    <p><strong>Sens :</strong> <span id="sens"></span></p>
 
-  container.innerHTML = html;
-}
+    <label id="extraLabel" class="hidden">
+      Ta réponse
+      <input id="extraInput" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    </label>
 
-function fermerListeComplete() {
-  document.getElementById("listeCompleteVerbes").classList.add("hidden");
-}
+    <label id="presLabel">
+      Présent
+      <input id="pres" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    </label>
 
-// filtrer les verbes
+    <label id="pretLabel">
+      Prétérit
+      <input id="pret" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    </label>
 
-function filtrerVerbes(type) {
-  const rows = document.querySelectorAll("#tbodyVerbes tr");
+    <label id="parfLabel">
+      Parfait
+      <input id="parf" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    </label>
 
-  rows.forEach(row => {
-    row.style.display = "";
+    <button onclick="checkAnswer()">Valider</button>
 
-    if (type === "probleme" && !row.classList.contains("verbe-probleme")) {
-      row.style.display = "none";
-    }
+    <div class="result" id="result"></div>
+    <p id="messageEncouragement" class="hidden">Réessaye encore 💪</p>
+    <button onclick="nextQuestion()" id="nextBtn" class="hidden">➡️ Verbe suivant</button>
+  </div>
 
-    if (type === "maitrise" && !row.classList.contains("verbe-maitrise")) {
-      row.style.display = "none";
-    }
+  <!-- CUSTOM LISTS PANEL -->
+  <div id="verbesPerso" class="card hidden">
+    <h2>📂 Mes listes de verbes</h2>
 
-    if (type === "encours" &&
-        (row.classList.contains("verbe-probleme") || row.classList.contains("verbe-maitrise"))) {
-      row.style.display = "none";
-    }
-  });
-}
+    <label>
+      Nouvelle liste
+      <input id="nomListe" type="text">
+    </label>
+    <button onclick="creerListe()">➕ Créer la liste</button>
 
-// réviser les verbes problématiques
-function reviserVerbesProblemes() {
-  let problematiques = [];
+    <div id="listesExistantes"></div>
 
-  // verbes de base
-  verbes.forEach(v => {
-    const s = stats[v.inf];
-    if (s && s.erreurs > s.maitrise) {
-      problematiques.push(v);
-    }
-  });
+    <hr>
 
-  // verbes personnalisés
-  Object.values(listesPerso).forEach(liste => {
-    liste.forEach(v => {
-      const s = stats[v.inf];
-      if (s && s.erreurs > s.maitrise && !problematiques.find(x => x.inf === v.inf)) {
-        problematiques.push(v);
-      }
-    });
-  });
+    <div id="gestionListe" class="hidden">
+      <h3 id="titreListe"></h3>
 
-  if (problematiques.length === 0) {
-    alert("🎉 Aucun verbe problématique !");
-    return;
-  }
+      <label>
+        Infinitif
+        <div style="position: relative;">
+          <input id="p_inf" type="text" autocomplete="off" 
+                 oninput="suggestionsInfinitif()" 
+                 onblur="fermerSuggestionsAvecDelai()">
+          <div id="suggestions" class="suggestions hidden"></div>
+        </div>
+      </label>
 
-  verbesActifs = problematiques;
-  mode = "random";
+      <label>
+        Présent
+        <input id="p_pres" type="text">
+      </label>
 
-  document.getElementById("statsPanel").classList.add("hidden");
-  document.getElementById("quiz").classList.remove("hidden");
+      <label>
+        Prétérit
+        <input id="p_pret" type="text">
+      </label>
 
-  next();
-}
+      <label>
+        Parfait
+        <input id="p_parf" type="text">
+      </label>
 
+      <label>
+        Sens (utiliser ; pour séparer)
+        <input id="p_sens" type="text">
+      </label>
 
+      <button onclick="ajouterVerbePerso()">💾 Ajouter le verbe</button>
+      <button onclick="reviserListePerso()">🎯 Réviser cette liste</button>
+      <button onclick="exporterListe()">📤 Exporter la liste</button>
 
+      <label style="margin-top: 10px;">
+        📥 Importer une liste
+        <input type="file" id="importListeInput" accept=".json">
+      </label>
 
-// update streak
-document.getElementById("streakMenu").textContent =
-  (JSON.parse(localStorage.getItem("streak")) || { count: 0 }).count;
+      <div id="listeVerbesPerso"></div>
+    </div>
+  </div>
 
-// ===== AUTOSUGGESTION =========
-let indexSuggestion = -1;
-let suggestionsActuelles = [];
+  <!-- STATISTICS PANEL -->
+  <div id="statsPanel" class="card hidden">
+    <h2>📊 Statistiques</h2>
+    
+    <div id="graphiqueContainer" style="margin-bottom: 30px; background: var(--card); padding: 15px; border-radius: 8px; border: 1px solid var(--border);">
+      <canvas id="progressChart" height="300"></canvas>
+    </div>
+    
+    <div id="statsContent"></div>
 
+    <div id="groupInfo" style="margin-bottom: 15px;">
+      <div style="font-weight: bold;">
+        Groupe actuel : <span id="currentGroup">1</span>
+      </div>
 
-function suggestionsInfinitif() {
-  const input = p_inf.value.trim().toLowerCase();
-  const box = document.getElementById("suggestions");
-  box.innerHTML = "";
-  indexSuggestion = -1;
-  suggestionsActuelles = [];
+      <div class="progress-bar">
+        <div id="groupProgressBar" class="progress-fill"></div>
+      </div>
 
-  if (input.length < 2) {
-    box.classList.add("hidden");
-    return;
-  }
+      <div style="font-size: 12px; margin-top: 4px;">
+        Progression : <span id="groupPercent">0</span>%
+      </div>
+    </div>
 
-  const dict = getDictionnaireVerbes();
-  suggestionsActuelles = Object.keys(dict)
-    .filter(k => k.startsWith(input))
-    .slice(0, 8);
+    <div id="listeCompleteVerbes" class="hidden"></div>
 
-  if (!suggestionsActuelles.length) {
-    box.classList.add("hidden");
-    return;
-  }
+    <!-- Modal Popup pour les conjugaisons -->
+    <div id="modalConjugaisons" class="hidden" style="
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    ">
+      <div style="
+        background: rgba(216, 216, 216, 0.927);
+        padding: 30px;
+        border-radius: 12px;
+        max-width: 500px;
+        max-height: 80vh;
+        overflow-y: auto;
+        box-shadow: 0 4px 20px rgba(225, 225, 225, 0.3);
+        border: 2px solid var(--primary);
+      ">
+        <div id="modalContent"></div>
+      </div>
+    </div>
 
-  suggestionsActuelles.forEach((inf, i) => {
-    const div = document.createElement("div");
-    div.textContent = inf;
-    div.onclick = () => selectionnerVerbe(dict[inf]);
-    box.appendChild(div);
-  });
+    <p>
+      Notifications : <strong id="etatNotif"></strong>
+    </p>
 
-  box.classList.remove("hidden");
-}
+    <button onclick="exporterDonnees()">💾 Exporter mes progrès</button>
+    <button onclick="importerDonnees()">📂 Importer mes progrès</button>
+    <button onclick="exporterPDF()">📄 Générer un PDF</button>
+    <button onclick="afficherTousLesVerbes()">📋 Voir tous les verbes</button>
 
+    <input type="file" id="importFile" accept=".json" class="hidden">
 
-function selectionnerVerbe(verbe) {
-  p_inf.value = verbe.inf;
-  p_pres.value = verbe.pres;
-  p_pret.value = verbe.pret;
-  p_parf.value = verbe.parf;
-  p_sens.value = verbe.sens;
+    <button onclick="closeStats()">⬅ Retour</button>
+  </div>
 
-  [p_pres, p_pret, p_parf, p_sens].forEach(i => i.disabled = true);
-  document.getElementById("suggestions").classList.add("hidden");
-}
+  <!-- MINI-JEUX PANEL -->
+  <div id="miniJeuxPanel" class="card hidden">
+    <div id="miniJeuxContent"></div>
+  </div>
 
-function fermerSuggestionsAvecDelai() {
-  setTimeout(() => {
-    document.getElementById("suggestions").classList.add("hidden");
-    autoCompleterVerbe(); // fallback si pas cliqué
-  }, 150);
-}
+  <!-- PENDU PANEL -->
+  <div id="penduPanel" class="card hidden">
+    <div id="penduContent"></div>
+  </div>
 
-p_inf.addEventListener("input", () => {
-  indexSuggestion = -1;
-  [p_pres, p_pret, p_parf, p_sens].forEach(i => i.disabled = false);
-});
+  <!-- MÉMOIRE PANEL -->
+  <div id="memoirePanel" class="card hidden">
+    <div id="memoireContent"></div>
+  </div>
 
+  <!-- VRAI/FAUX PANEL -->
+  <div id="vraiFauxPanel" class="card hidden">
+    <div id="vraiFauxContent"></div>
+  </div>
 
+  <!-- TRADUCTION PANEL -->
+  <div id="traductionPanel" class="card hidden">
+    <div id="traductionContent"></div>
+  </div>
 
-p_inf.addEventListener("keydown", e => {
-  const box = document.getElementById("suggestions");
-  if (box.classList.contains("hidden")) return;
+  <!-- RELIER PANEL -->
+  <div id="relierPanel" class="card hidden">
+    <div id="relierContent"></div>
+  </div>
 
-  const items = box.children;
-  if (!items.length) return;
+  <!-- MAÎTRISE PANEL -->
+  <div id="maitrisePanel" class="card hidden">
+    <div id="maitriseContent"></div>
+  </div>
 
-  if (e.key === "ArrowDown") {
-    e.preventDefault();
-    indexSuggestion = (indexSuggestion + 1) % items.length;
-    majSelection(items);
-  }
+  <!-- DÉFI VITESSE PANEL -->
+  <div id="defiVitessePanel" class="card hidden">
+    <div id="defiVitesseContent"></div>
+  </div>
 
-  if (e.key === "ArrowUp") {
-    e.preventDefault();
-    indexSuggestion = (indexSuggestion - 1 + items.length) % items.length;
-    majSelection(items);
-  }
-
-  if (e.key === "Enter" && indexSuggestion >= 0) {
-    e.preventDefault();
-    const inf = suggestionsActuelles[indexSuggestion];
-    selectionnerVerbe(getDictionnaireVerbes()[inf]);
-  }
-
-  if (e.key === "Escape") {
-    box.classList.add("hidden");
-  }
-});
-
-function majSelection(items) {
-  [...items].forEach((el, i) => {
-    el.classList.toggle("active", i === indexSuggestion);
-  });
-}
-
-// ======== THÈME SOMBRE ET CLAIR ====
-function toggleTheme() {
-  document.body.classList.toggle("dark");
-  localStorage.setItem(
-    "theme",
-    document.body.classList.contains("dark") ? "dark" : "light"
-  );
-}
-
-  if (localStorage.getItem("theme") === "dark") {
-  document.body.classList.add("dark");
-}
-
-
-</script>
-
+  <!-- SCRIPTS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script> <!-- Pour la génération du PDF dans les statistiques -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script> <!-- Pour les graphiques dans les statistiques -->
+  <script src="js/data.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/quiz.js"></script>
+  <script src="js/notifications.js"></script>
+  <script src="js/verbesPerso.js"></script>
+  <script src="js/pomodoro.js"></script>
+  <script src="js/stats.js"></script>
+  <script src="js/minigames.js"></script>
+  <script src="js/app.js"></script>
 </body>
-</html>
 
+</html>

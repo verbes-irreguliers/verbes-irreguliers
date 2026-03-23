@@ -1,0 +1,413 @@
+/* ============ FONT IMPORTS ============ */
+@import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap');
+
+/* ============ VARIABLES & THEMES ============ */
+:root {
+  --bg: #f4f4f4;
+  --card: #ffffff;
+  --text: #000000;
+  --input: #ffffff;
+  --border: #cccccc;
+  --primary: #4caf50;
+  --button: #4caf50;
+  --accent: #4caf50;
+  --error: #ff4d4d;
+  --success: #d4edda;
+  --disabled: #ccc;
+  --hover: #f0f0f0;
+}
+
+body.dark {
+  --bg: #121212;
+  --card: #1e1e1e;
+  --text: #e0e0e0;
+  --input: #2a2a2a;
+  --border: #444;
+  --primary: #81c784;
+  --button: #81c784;
+  --accent: #81c784;
+  --error: #ff6b6b;
+  --success: #2d5016;
+  --disabled: #555;
+  --hover: #2a2a2a;
+}
+
+/* ============ DRACULA THEME ============ */
+body.dracula {
+  --bg: #282a36;
+  --card: #44475a;
+  --text: #f8f8f2;
+  --input: #3d3f48;
+  --border: #6272a4;
+  --primary: #ff79c6;
+  --button: #ff79c6;
+  --accent: #ff79c6;
+  --error: #ff5555;
+  --success: #50fa7b;
+  --disabled: #666;
+  --hover: #3d3f48;
+}
+
+/* ============ NORD THEME ============ */
+body.nord {
+  --bg: #2e3440;
+  --card: #3b4252;
+  --text: #eceff4;
+  --input: #434c5e;
+  --border: #4c566a;
+  --primary: #88c0d0;
+  --button: #88c0d0;
+  --accent: #88c0d0;
+  --error: #bf616a;
+  --success: #a3be8c;
+  --disabled: #5e6d7d;
+  --hover: #434c5e;
+}
+
+/* ============ COLORFUL THEME ============ */
+body.colorful {
+  --bg: #fef5f5;
+  --card: #ffffff;
+  --text: #2c3e50;
+  --input: #ecf0f1;
+  --border: #e74c3c;
+  --primary: #e74c3c;
+  --button: #e74c3c;
+  --accent: #3498db;
+  --error: #c0392b;
+  --success: #d5f4e6;
+  --disabled: #bdc3c7;
+  --hover: #ecf0f1;
+}
+
+/* ============ HIGH CONTRAST THEME ============ */
+body.highcontrast {
+  --bg: #ffffff;
+  --card: #f0f0f0;
+  --text: #000000;
+  --input: #ffffff;
+  --border: #000000;
+  --primary: #0000ff;
+  --button: #0000ff;
+  --accent: #0000ff;
+  --error: #ff0000;
+  --success: #00ff00;
+  --disabled: #cccccc;
+  --hover: #ffff00;
+}
+
+/* ============ DYSLEXIC FRIENDLY FONT ============ */
+body.dyslexic {
+  font-family: "Atkinson Hyperlegible", "Comic Sans MS", "OpenDyslexic", sans-serif;
+  letter-spacing: 0.12em;
+  line-height: 1.8;
+  word-spacing: 0.2em;
+}
+
+body.dyslexic h1,
+body.dyslexic h2,
+body.dyslexic h3,
+body.dyslexic button,
+body.dyslexic input,
+body.dyslexic label {
+  font-family: "Atkinson Hyperlegible", "Comic Sans MS", "OpenDyslexic", sans-serif;
+  letter-spacing: 0.12em;
+}
+
+/* ============ GLOBAL STYLES ============ */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  padding: 20px;
+  margin: 0;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* ============ CARD & CONTAINER ============ */
+.card {
+  background: var(--card);
+  padding: 20px;
+  max-width: 600px;
+  margin: auto;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+/* ============ TYPOGRAPHY ============ */
+h1 {
+  text-align: center;
+  margin: 0 0 20px 0;
+}
+
+h2 {
+  margin-top: 15px;
+  margin-bottom: 10px;
+}
+
+h3 {
+  margin-top: 10px;
+  margin-bottom: 8px;
+}
+
+a {
+  font-size: 36px;
+  text-decoration: none;
+  margin-right: 10px;
+}
+
+/* ============ FORMS ============ */
+label {
+  display: block;
+  margin-top: 10px;
+  text-align: left;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="file"],
+select,
+textarea {
+  width: 100%;
+  padding: 8px;
+  margin-top: 4px;
+  background: var(--input);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-family: inherit;
+}
+
+input[type="file"] {
+  padding: 4px;
+}
+
+input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ============ BUTTONS ============ */
+button {
+  margin-top: 15px;
+  padding: 10px 15px;
+  width: 100%;
+  font-size: 16px;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: opacity 0.3s;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+button[id^="btn"] {
+  margin-right: 5px;
+}
+
+/* ============ UTILITY CLASSES ============ */
+.hidden {
+  display: none !important;
+}
+
+.result {
+  margin-top: 15px;
+  padding: 10px;
+  background: var(--input);
+  border-radius: 4px;
+  text-align: left;
+}
+
+/* ============ ANIMATIONS ============ */
+@keyframes successFlash {
+  0% {
+    background-color: #ffffff;
+  }
+  30% {
+    background-color: #d4edda;
+  }
+  100% {
+    background-color: #ffffff;
+  }
+}
+
+@keyframes successPop {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.success-animation {
+  animation: successFlash 0.6s ease, successPop 0.4s ease;
+}
+
+/* ============ STATUS COLORS ============ */
+.verbe-maitrise {
+  background: #d4edda;
+  color: #155724;
+}
+
+.verbe-probleme {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.verbe-neutre {
+  background: #ffffff;
+}
+
+.verbe-maitrise td,
+.verbe-probleme td,
+.verbe-neutre td {
+  border: 1px solid #ccc;
+  padding: 6px;
+}
+
+/* ============ TABLES ============ */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 10px 0;
+}
+
+table td,
+table th {
+  border: 1px solid var(--border);
+  padding: 8px;
+  text-align: left;
+}
+
+table thead {
+  background: var(--input);
+  font-weight: bold;
+}
+
+table tbody tr:nth-child(even) {
+  background: var(--input);
+}
+
+/* ============ SUGGESTIONS ============ */
+.suggestions {
+  position: absolute;
+  background: var(--card);
+  border: 1px solid var(--border);
+  width: 100%;
+  max-height: 150px;
+  overflow-y: auto;
+  z-index: 10;
+  border-radius: 4px;
+}
+
+.suggestions div {
+  padding: 8px;
+  cursor: pointer;
+}
+
+.suggestions div:hover,
+.suggestions div.active {
+  background: var(--accent);
+  color: white;
+}
+
+/* ============ PROGRESS BAR ============ */
+.progress-bar {
+  background: #ddd;
+  height: 12px;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-top: 6px;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: #4CAF50;
+  transition: width 0.4s;
+}
+
+/* ============ STATS PANEL ============ */
+.stats-item {
+  padding: 8px;
+  margin-bottom: 6px;
+  border-radius: 6px;
+  background: var(--input);
+}
+
+.stats-item.unlocked {
+  background: #d4edda;
+  opacity: 1;
+}
+
+.stats-item.locked {
+  opacity: 0.5;
+}
+
+/* ============ BUTTONS INLINE ============ */
+.button-group {
+  display: flex;
+  gap: 5px;
+  margin: 10px 0;
+  flex-wrap: wrap;
+}
+
+.button-group button {
+  flex: 1;
+  min-width: 100px;
+  margin: 0;
+  padding: 8px 10px;
+  font-size: 14px;
+}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width: 600px) {
+  body {
+    padding: 10px;
+  }
+
+  .card {
+    padding: 15px;
+  }
+
+  button {
+    padding: 12px 10px;
+    font-size: 14px;
+  }
+
+  a {
+    font-size: 24px;
+  }
+
+  table {
+    font-size: 12px;
+  }
+
+  table td,
+  table th {
+    padding: 4px;
+  }
+}
