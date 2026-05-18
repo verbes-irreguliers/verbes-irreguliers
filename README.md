@@ -5,6 +5,7 @@ Système interactif et gamifié pour réviser les verbes irréguliers (allemand 
 ## 🚀 Démarrage rapide
 
 **Utiliser la version en ligne : [verbes-irreguliers.github.io/verbes-irreguliers/](URL "https://verbes-irreguliers.github.io/verbes-irreguliers/")**
+
 **Utiliser hors ligne :**
 
 1. **Ouvrir le projet** : Double-cliquez sur `index.html`
