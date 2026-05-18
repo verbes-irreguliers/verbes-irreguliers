@@ -110,8 +110,7 @@ body.dyslexic h3,
 body.dyslexic button,
 body.dyslexic input,
 body.dyslexic label {
-  font-family: "Atkinson Hyperlegible", "Comic Sans MS", "OpenDyslexic", sans-serif;
-  letter-spacing: 0.12em;
+  font-family: "OpenDyslexic", sans-serif;
 }
 
 /* ============ GLOBAL STYLES ============ */
