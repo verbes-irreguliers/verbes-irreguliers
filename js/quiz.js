@@ -219,11 +219,11 @@ function initKeyboardNavigation() {
           if (nextInput && label && !label.classList.contains("hidden")) {
             nextInput.focus();
           } else {
-            const checkBtn = document.querySelector("#quiz button");
+            const checkBtn = document.getElementById("checkAnswerBtn");
             if (checkBtn) checkBtn.click();
           }
         } else {
-          const checkBtn = document.querySelector("#quiz button");
+          const checkBtn = document.getElementById("checkAnswerBtn");
           if (checkBtn) checkBtn.click();
         }
       }
