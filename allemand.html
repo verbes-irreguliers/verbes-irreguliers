@@ -135,6 +135,10 @@
       <input id="parf" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
     </label>
 
+    <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; margin-bottom: 10px;">
+      <button type="button" class="special-char" tabindex="-1" onmousedown="insertSpecialChar('ß', event)">ß</button>
+      <button type="button" class="special-char" tabindex="-1" onmousedown="insertSpecialChar('ä', event)">ä</button>
+    </div>
     <button onclick="checkAnswer()">Valider</button>
 
     <div class="result" id="result"></div>
@@ -188,6 +192,11 @@
         Sens (utiliser ; pour séparer)
         <input id="p_sens" type="text">
       </label>
+
+      <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; margin-bottom: 10px;">
+        <button type="button" class="special-char" tabindex="-1" onmousedown="insertSpecialChar('ß', event)">ß</button>
+        <button type="button" class="special-char" tabindex="-1" onmousedown="insertSpecialChar('ä', event)">ä</button>
+      </div>
 
       <button onclick="ajouterVerbePerso()">💾 Ajouter le verbe</button>
       <button onclick="reviserListePerso()">🎯 Réviser cette liste</button>

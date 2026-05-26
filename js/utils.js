@@ -211,6 +211,29 @@ function toggle(elementId) {
   if (el) el.classList.toggle("hidden");
 }
 
+function insertSpecialChar(character, event) {
+  if (event) {
+    event.preventDefault();
+  }
+
+  const active = document.activeElement;
+  const target = (active instanceof HTMLInputElement || active instanceof HTMLTextAreaElement)
+    ? active
+    : null;
+
+  if (!target) {
+    return;
+  }
+
+  const start = target.selectionStart ?? target.value.length;
+  const end = target.selectionEnd ?? start;
+  const value = target.value || "";
+  target.value = value.slice(0, start) + character + value.slice(end);
+  const cursorPos = start + character.length;
+  target.selectionStart = target.selectionEnd = cursorPos;
+  target.focus();
+}
+
 // ============ NOTIFICATION UTILITIES ============
 function showAlertNotification(title, message, duration = 4000) {
   const div = document.createElement("div");

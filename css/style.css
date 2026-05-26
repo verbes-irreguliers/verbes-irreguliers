@@ -219,6 +219,13 @@ button:disabled {
   cursor: not-allowed;
 }
 
+button.special-char {
+  width: auto;
+  padding: 8px 12px;
+  min-width: 46px;
+  font-size: 16px;
+}
+
 button[id^="btn"] {
   margin-right: 5px;
 }
