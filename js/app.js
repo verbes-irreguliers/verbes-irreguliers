@@ -132,7 +132,19 @@ function closeSettings() {
   updateMenuState();
 }
 
-// ============ HOME NAVIGATION ============
+  function openHelp() {
+  hide("menu");
+  show("helpPanel");
+  updateMenuState();
+}
+
+function closeHelp() {
+  hide("helpPanel");
+  show("menu");
+  updateMenuState();
+}
+
+// ============ HOME NAVIGATION ============.
 function goToGermanMenu() {
   // Hide all panels
   hide("settingsPanel");
@@ -143,6 +155,7 @@ function goToGermanMenu() {
   hide("miniJeuxPanel");
   hide("penduPanel");
   hide("memoirePanel");
+  hide("helpPanel");
   hide("vraiFauxPanel");
   hide("traductionPanel");
   hide("relierPanel");

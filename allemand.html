@@ -21,6 +21,7 @@
       <button onclick="openCustomLists()">🧩 Listes personnalisées</button>
       <button onclick="afficherMiniJeux()">🎮 Mini-Jeux</button>
       <button onclick="openStats()">📊 Statistiques</button>
+      <button onclick="openHelp()">❓ Aide</button>
       <button id="btnActiverNotif" onclick="activerNotifications()">🔔 Activer les notifications</button>
       <button id="btnDesactiverNotif" class="hidden" onclick="desactiverNotifications()">🔕 Désactiver les notifications</button>
       <button onclick="openPomodoro()">🍅 Pomodoro</button>
@@ -81,6 +82,29 @@
 
     <!-- BACK BUTTON -->
     <button onclick="closeSettings()" style="width: 100%; margin-top: 15px;">⬅ Retour</button>
+  </div>
+
+  <!-- HELP PANEL -->
+  <div id="helpPanel" class="card hidden">
+    <h1>❓ Manuel d'aide</h1>
+
+    <div style="margin-bottom: 20px; line-height: 1.6;">
+      <p>Bienvenue dans le guide d'utilisation. Voici comment tirer le meilleur parti de l'application :</p>
+      <ul style="padding-left: 22px; margin-top: 10px;">
+        <li><strong>Révision ciblée</strong> : lance un quiz sur les verbes allemands avec conjugaisons et sens.</li>
+        <li><strong>Listes personnalisées</strong> : crée, importe et révise tes propres listes de verbes.</li>
+        <li><strong>Mini-Jeux</strong> : pratique en t'amusant pour renforcer ta mémorisation.</li>
+        <li><strong>Statistiques</strong> : consulte ta progression, tes erreurs et ton niveau de maîtrise.</li>
+        <li><strong>Notifications</strong> : active-les pour recevoir des rappels de révision.</li>
+        <li><strong>Pomodoro</strong> : aide à structurer tes séances de travail.</li>
+        <li><strong>Paramètres</strong> : change le thème, active la police dyslexique ou gère l'import/export.</li>
+      </ul>
+
+      <p>Dans les quiz, saisis les formes demandées et clique sur <strong>Valider</strong>. Tu peux ensuite passer au verbe suivant avec le bouton prévu.</p>
+      <p>Si tu souhaites revenir au menu principal à tout moment, utilise le bouton <strong>⬅ Retour</strong> ou l'icône de maison 🏠 en haut à gauche ou le geste de balayage vers la droite sur mobile.</p>
+    </div>
+
+    <button onclick="closeHelp()" style="width: 100%; margin-top: 15px;">⬅ Retour</button>
   </div>
 
   <!-- QUIZ PANEL -->
