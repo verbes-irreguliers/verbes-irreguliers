@@ -112,34 +112,36 @@
   <div id="quiz" class="card hidden">
     <h1>📝 Quiz</h1>
 
-    <p><strong>Infinitif :</strong> <span id="inf"></span></p>
-    <p><strong>Sens :</strong> <span id="sens"></span></p>
+    <form id="quizForm" onsubmit="checkAnswer(); return false;">
+      <p><strong>Infinitif :</strong> <span id="inf"></span></p>
+      <p><strong>Sens :</strong> <span id="sens"></span></p>
 
-    <label id="extraLabel" class="hidden">
-      Ta réponse
-      <input id="extraInput" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-    </label>
+      <label id="extraLabel" class="hidden">
+        Ta réponse
+        <input id="extraInput" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+      </label>
 
-    <label id="presLabel">
-      Présent
-      <input id="pres" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-    </label>
+      <label id="presLabel">
+        Présent
+        <input id="pres" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+      </label>
 
-    <label id="pretLabel">
-      Prétérit
-      <input id="pret" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-    </label>
+      <label id="pretLabel">
+        Prétérit
+        <input id="pret" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+      </label>
 
-    <label id="parfLabel">
-      Parfait
-      <input id="parf" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-    </label>
+      <label id="parfLabel">
+        Parfait
+        <input id="parf" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+      </label>
 
-    <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; margin-bottom: 10px;">
-      <button type="button" class="special-char" tabindex="-1" onmousedown="insertSpecialChar('ß', event)">ß</button>
-      <button type="button" class="special-char" tabindex="-1" onmousedown="insertSpecialChar('ä', event)">ä</button>
-    </div>
-    <button id="checkAnswerBtn" onclick="checkAnswer()">Valider</button>
+      <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; margin-bottom: 10px;">
+        <button type="button" class="special-char" tabindex="-1" onmousedown="insertSpecialChar('ß', event)">ß</button>
+        <button type="button" class="special-char" tabindex="-1" onmousedown="insertSpecialChar('ä', event)">ä</button>
+      </div>
+      <button id="checkAnswerBtn" type="submit">Valider</button>
+    </form>
 
     <div class="result" id="result"></div>
     <p id="messageEncouragement" class="hidden">Réessaye encore 💪</p>
