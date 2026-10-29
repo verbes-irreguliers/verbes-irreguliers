@@ -1,5 +1,5 @@
-/* ============ FONT IMPORTS ============ */
 @import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap');
+
 
 /* ============ VARIABLES & THEMES ============ */
 :root {
@@ -128,19 +128,20 @@ body.highcontrast {
 }
 
 /* ============ DYSLEXIC FRIENDLY FONT ============ */
-body.dyslexic {
+body {
   font-family: "Atkinson Hyperlegible", "Comic Sans MS", "OpenDyslexic", sans-serif;
-  letter-spacing: 0.12em;
-  line-height: 1.8;
+  letter-spacing: 0.05em;
+  line-height: 1.2;
   word-spacing: 0.2em;
+  font-size: 120% !important;
 }
 
-body.dyslexic h1,
-body.dyslexic h2,
-body.dyslexic h3,
-body.dyslexic button,
-body.dyslexic input,
-body.dyslexic label {
+body h1,
+ h2,
+ h3,
+ button,
+ input,
+ label {
   font-family: "OpenDyslexic", sans-serif;
 }
 
@@ -155,7 +156,6 @@ body {
   color: var(--text);
   padding: 20px;
   margin: 0;
-  transition: background-color 0.3s, color 0.3s;
 }
 
 /* ============ CARD & CONTAINER ============ */
@@ -199,8 +199,6 @@ label {
 }
 
 input[type="text"],
-input[type="email"],
-input[type="password"],
 input[type="file"],
 select,
 textarea {
@@ -228,7 +226,7 @@ button {
   margin-top: 15px;
   padding: 10px 15px;
   width: 100%;
-  font-size: 16px;
+  font-size: 18px;
   background: var(--accent);
   color: white;
   border: none;
@@ -275,18 +273,6 @@ button[id^="btn"] {
 }
 
 /* ============ ANIMATIONS ============ */
-@keyframes successFlash {
-  0% {
-    background-color: #ffffff;
-  }
-  30% {
-    background-color: #d4edda;
-  }
-  100% {
-    background-color: #ffffff;
-  }
-}
-
 @keyframes successPop {
   0% {
     transform: scale(1);
@@ -300,28 +286,28 @@ button[id^="btn"] {
 }
 
 .success-animation {
-  animation: successFlash 0.6s ease, successPop 0.4s ease;
+  animation: successPop 0.4s ease;
 }
 
 /* ============ STATUS COLORS ============ */
 .verbe-maitrise {
-  background: #d4edda;
-  color: #155724;
+  background: var(--success);
+  color: var(--text);
 }
 
 .verbe-probleme {
-  background: #f8d7da;
-  color: #721c24;
+  background: var(--error);
+  color: var(--text);
 }
 
 .verbe-neutre {
-  background: #ffffff;
+  background: var(--hover);
 }
 
 .verbe-maitrise td,
 .verbe-probleme td,
 .verbe-neutre td {
-  border: 1px solid #ccc;
+  border: 1px solid var(--border);
   padding: 6px;
 }
 

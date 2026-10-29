@@ -27,7 +27,7 @@ function toggleTheme() {
 }
 
 // ============ TOGGLE DYSLEXIC FONT ============
-function toggleDyslexicFont() {
+/*function toggleDyslexicFont() {
   const isDyslexic = document.body.classList.contains("dyslexic");
   
   if (isDyslexic) {
@@ -44,7 +44,7 @@ function toggleDyslexicFont() {
   if (typeof updateDyslexicButtonText === "function") {
     updateDyslexicButtonText();
   }
-}
+}*/
 
 // ============ THEME INITIALIZATION ============
 function initTheme() {
