@@ -23,10 +23,10 @@ body.dark {
   --text: #e0e0e0;
   --input: #2a2a2a;
   --border: #444;
-  --primary: #81c784;
-  --button: #81c784;
-  --accent: #81c784;
-  --error: #ff6b6b;
+  --primary: #6b8ea0;
+  --button: #5a718b;
+  --accent: #5c718d;
+  --error: #e55e5e;
   --success: #2d5016;
   --disabled: #555;
   --hover: #2a2a2a;
@@ -78,6 +78,37 @@ body.colorful {
   --success: #d5f4e6;
   --disabled: #bdc3c7;
   --hover: #ecf0f1;
+}
+
+/* ============ EVERFOREST THEME ============== */
+body.everforestdark {
+  --bg: #272E33;
+  --card: #2E383C;
+  --text: #D3C6AA;
+  --input: #374145;
+  --border: #495156;
+  --primary: #A7C080;
+  --button: #A7C080;
+  --accent: #83C092;
+  --error: #E67E80;
+  --success: #3C4841;
+  --disabled: #7A8478;
+  --hover: #374145;
+}
+
+body.everforestlight {
+  --bg: #FFFBEF;
+  --card: #F8F5E4;
+  --text: #5C6A72;
+  --input: #FFFBEF;
+  --border: #BEC5B2;
+  --primary: #8DA101;
+  --button: #8DA101;
+  --accent: #35A77C;
+  --error: #F85552;
+  --success: #F3F5D9;
+  --disabled: #A6B0A0;
+  --hover: #F2EFDF;
 }
 
 /* ============ HIGH CONTRAST THEME ============ */

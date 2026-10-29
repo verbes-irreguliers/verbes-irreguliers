@@ -2,7 +2,7 @@
  * theme.js - Gestion des thèmes et police dyslexic-friendly
  */
 
-const AVAILABLE_THEMES = ["light", "dark", "dracula", "nord", "colorful", "highcontrast"];
+const AVAILABLE_THEMES = ["light", "dark", "dracula", "nord", "colorful", "highcontrast", "everforestdark", "everforestlight"];
 
 // ============ CHANGE THEME ============
 function changeTheme(theme) {
