@@ -98,118 +98,6 @@ function afficherSucces(succes) {
 }
 
 // ============ STATISTICS DISPLAY ============
-// ============ PROGRESSION CHART ============
-function afficherGraphiqueProgression() {
-  const canvas = document.getElementById("progressChart");
-  if (!canvas) return;
-
-  // Destroy existing chart if any
-  if (window.progressChartInstance) {
-    window.progressChartInstance.destroy();
-  }
-
-  // Prepare data per group
-  const groupes = groupesDebloques();
-  const labels = [];
-  const maitrisesData = [];
-  const totalData = [];
-  const couleurs = [];
-  const tailleGrille = 15;
-
-  groupes.forEach((groupe, index) => {
-    labels.push(`Groupe ${index + 1}`);
-    
-    let groupMaitrise = 0;
-    let groupTotal = 0;
-    
-    // Count verbs in this group
-    for (let i = groupe.debut; i <= groupe.fin; i++) {
-      if (i - 1 < VERBES.length) {
-        const verb = VERBES[i - 1];
-        const verbStats = stats[verb.infinitif] || {};
-        groupTotal++;
-        if ((verbStats.maitrise || 0) >= 5) {
-          groupMaitrise++;
-        }
-      }
-    }
-    
-    maitrisesData.push(groupMaitrise);
-    totalData.push(groupTotal);
-    couleurs.push(`hsl(${120 - (index * 15)}, 70%, 60%)`);
-  });
-
-  const ctx = canvas.getContext("2d");
-  window.progressChartInstance = new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels: labels,
-      datasets: [
-        {
-          label: "✅ Verbes maîtrisés",
-          data: maitrisesData,
-          backgroundColor: couleurs,
-          borderColor: couleurs.map(c => c.replace("60%", "40%")),
-          borderWidth: 2,
-          borderRadius: 6
-        },
-        {
-          label: "📚 Verbes totaux",
-          data: totalData,
-          backgroundColor: couleurs.map(c => c.replace("70%", "20%")),
-          borderColor: couleurs.map(c => c.replace("60%", "30%")),
-          borderWidth: 1,
-          borderRadius: 4,
-          barPercentage: 0.8
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: true,
-      indexAxis: "x",
-      plugins: {
-        legend: {
-          display: true,
-          position: "top",
-          labels: {
-            color: document.body.style.color || getComputedStyle(document.body).color,
-            font: { size: 12, weight: "bold" }
-          }
-        },
-        title: {
-          display: true,
-          text: "📈 Progression par groupe",
-          color: document.body.style.color || getComputedStyle(document.body).color,
-          font: { size: 14, weight: "bold" },
-          padding: 15
-        }
-      },
-      scales: {
-        y: {
-          beginAtZero: true,
-          max: Math.max(...totalData, 20),
-          ticks: {
-            color: document.body.style.color || getComputedStyle(document.body).color,
-            stepSize: 1
-          },
-          grid: {
-            color: "rgba(128, 128, 128, 0.1)"
-          }
-        },
-        x: {
-          ticks: {
-            color: document.body.style.color || getComputedStyle(document.body).color
-          },
-          grid: {
-            display: false
-          }
-        }
-      }
-    }
-  });
-}
-
 // ============ STATS DISPLAY ============
 function afficherStats() {
   hide("menu");
@@ -217,8 +105,6 @@ function afficherStats() {
   show("statsPanel");
   updateMenuState();
 
-  // Show progression chart
-  afficherGraphiqueProgression();
 
   let total = 0, erreurs = 0, maitrise = 0;
 
@@ -303,7 +189,7 @@ function afficherTousLesVerbes() {
       <button onclick="filtrerVerbes('probleme')">🔴 Problématiques</button>
       <button onclick="filtrerVerbes('maitrise')">🟢 Maîtrisés</button>
       <button onclick="filtrerVerbes('encours')">⚪ En cours</button>
-      <button onclick="reviserVerbesProblemes()">🎯 Réviser</button>
+      <button onclick="reviserVerbesProblemes()">🎯 Réviser les verbes non maîtrisés</button>
     </div>
 
     <table>
