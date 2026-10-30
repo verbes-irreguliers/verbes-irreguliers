@@ -2,7 +2,7 @@
 
 Système interactif et gamifié pour réviser les verbes irréguliers (allemand + anglais à venir).
 
-## 🚀 Démarrage rapide
+## Démarrage rapide
 
 **Utiliser la version en ligne : [verbes-irreguliers.github.io/verbes-irreguliers/](URL "https://verbes-irreguliers.github.io/verbes-irreguliers/")**
 
@@ -14,4 +14,4 @@ Système interactif et gamifié pour réviser les verbes irréguliers (allemand 
 
 C'est tout ! L'application fonctionne complètement hors ligne.
 
-Bon courage dans votre apprentissage ! 🚀📘
+Bon courage dans votre apprentissage !
