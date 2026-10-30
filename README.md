@@ -15,3 +15,7 @@ Système interactif et gamifié pour réviser les verbes irréguliers (allemand 
 C'est tout ! L'application fonctionne complètement hors ligne.
 
 Bon courage dans votre apprentissage !
+
+## Modifier les styles
+
+Les sources SCSS sont organisées par fonctionnalité dans `scss/`. Le fichier `css/style.css` est généré par `npm run build:css` après `npm install`.

@@ -53,7 +53,6 @@ function initializeApp() {
   updateStreak();
   majBoutonsNotifications();
   majEtatNotifications();
-  updateDyslexicButtonText();
 
   // Update streak display
   const streakMenu = document.getElementById("streakMenu");
@@ -74,6 +73,20 @@ function setupEventListeners() {
       }
     });
   }
+
+  const quizForm = document.getElementById("quizForm");
+  if (quizForm) {
+    quizForm.addEventListener("submit", event => {
+      event.preventDefault();
+      checkAnswer();
+    });
+  }
+
+  document.querySelectorAll("[data-special-char]").forEach(button => {
+    button.addEventListener("mousedown", event => {
+      insertSpecialChar(button.dataset.specialChar, event);
+    });
+  });
 
   // Import custom list listener
   const importListeInput = document.getElementById("importListeInput");
@@ -122,7 +135,6 @@ function closeCustomLists() {
 function openSettings() {
   hide("menu");
   show("settingsPanel");
-  updateDyslexicButtonText();
   updateMenuState();
 }
 
@@ -132,7 +144,7 @@ function closeSettings() {
   updateMenuState();
 }
 
-  function openHelp() {
+function openHelp() {
   hide("menu");
   show("helpPanel");
   updateMenuState();
@@ -144,7 +156,7 @@ function closeHelp() {
   updateMenuState();
 }
 
-// ============ HOME NAVIGATION ============.
+// ============ HOME NAVIGATION ============
 function goToGermanMenu() {
   // Hide all panels
   hide("settingsPanel");
@@ -173,17 +185,6 @@ function goToGermanMenu() {
   
   // Update menu state
   updateMenuState();
-}
-
-// ============ UPDATE UI STATES ============
-function updateDyslexicButtonText() {
-  const isDyslexic = document.body.classList.contains("dyslexic");
-  const btnText = isDyslexic ? "📖 Désactiver police dyslexique" : "📖 Activer police dyslexique";
-  
-  const btnSettings = document.getElementById("btnDyslexicSettings");
-  if (btnSettings) {
-    btnSettings.textContent = btnText;
-  }
 }
 
 // ============ DOCUMENT READY ============

@@ -34,28 +34,20 @@ function afficherListes() {
 
   Object.keys(listesPerso).forEach(nom => {
     const container = document.createElement("div");
-    container.style.display = "flex";
-    container.style.justifyContent = "space-between";
-    container.style.alignItems = "center";
-    container.style.marginBottom = "10px";
-    container.style.padding = "8px";
-    container.style.background = "var(--input)";
-    container.style.borderRadius = "4px";
+    container.className = "personal-list-item";
 
     const span = document.createElement("span");
     span.textContent = nom;
-    span.style.flex = "1";
+    span.className = "personal-list-item__name";
 
     const btnEdit = document.createElement("button");
     btnEdit.textContent = "✏️";
-    btnEdit.style.width = "40px";
-    btnEdit.style.margin = "0 5px";
+    btnEdit.className = "personal-list-item__action";
     btnEdit.addEventListener("click", () => ouvrirListe(nom));
 
     const btnDelete = document.createElement("button");
     btnDelete.textContent = "❌";
-    btnDelete.style.width = "40px";
-    btnDelete.style.margin = "0";
+    btnDelete.className = "personal-list-item__action";
     btnDelete.addEventListener("click", () => supprimerListe(nom));
 
     container.appendChild(span);
@@ -96,22 +88,15 @@ function afficherVerbesListe() {
 
   liste.forEach((v, i) => {
     const container = document.createElement("div");
-    container.style.display = "flex";
-    container.style.justifyContent = "space-between";
-    container.style.alignItems = "center";
-    container.style.marginBottom = "8px";
-    container.style.padding = "8px";
-    container.style.background = "var(--input)";
-    container.style.borderRadius = "4px";
+    container.className = "personal-list-item";
 
     const info = document.createElement("span");
     info.textContent = `${v.inf} – ${v.sens}`;
-    info.style.flex = "1";
+    info.className = "personal-list-item__name";
 
     const btnDelete = document.createElement("button");
     btnDelete.textContent = "❌";
-    btnDelete.style.width = "40px";
-    btnDelete.style.margin = "0";
+    btnDelete.className = "personal-list-item__action";
     btnDelete.addEventListener("click", () => supprimerVerbeListe(i));
 
     container.appendChild(info);
@@ -214,14 +199,7 @@ function reviserListePerso() {
     return;
   }
 
-  // Convert list structure to match VERBES format if needed
-  verbesActifs = liste.map(v => ({
-    inf: v.inf,
-    pres: v.pres,
-    pret: v.pret,
-    parf: v.parf,
-    sens: v.sens
-  }));
+  verbesActifs = [...liste];
   
   mode = "targeted";
   updateStatsMode = false; // Don't update stats for custom lists
@@ -325,7 +303,7 @@ function suggestionsInfinitif() {
   suggestionsActuelles.forEach((inf, i) => {
     const div = document.createElement("div");
     div.textContent = inf;
-    div.onclick = () => selectionnerVerbe(dict[inf]);
+    div.addEventListener("click", () => selectionnerVerbe(dict[inf]));
     box.appendChild(div);
   });
 
@@ -376,7 +354,10 @@ function initAutocompletKeyboard() {
     [p_pres, p_pret, p_parf, p_sens].forEach(el => {
       if (el) el.disabled = false;
     });
+    suggestionsInfinitif();
   });
+
+  p_inf.addEventListener("blur", fermerSuggestionsAvecDelai);
 
   p_inf.addEventListener("keydown", e => {
     const box = document.getElementById("suggestions");

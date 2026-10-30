@@ -17,7 +17,12 @@
 │   ├── _controls.scss         # Formulaires et boutons
 │   ├── _components.scss       # Composants de l'application
 │   ├── _responsive.scss       # Adaptations pour petits écrans
-│   └── _fonts.scss            # Importation des polices
+│   ├── _fonts.scss            # Importation des polices
+│   ├── _pages.scss            # Pages d'accueil et paramètres
+│   ├── _personal-lists.scss   # Listes personnalisées
+│   ├── _feedback.scss         # Notifications et filtres
+│   ├── _pomodoro.scss         # Minuteur Pomodoro
+│   └── _games.scss            # Mini-jeux
 ├── package.json               # Script de compilation Sass
 ├── js/
 │   ├── data.js               # Données des verbes (VÉRIFIÉES)

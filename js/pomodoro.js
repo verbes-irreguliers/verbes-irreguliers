@@ -144,20 +144,16 @@ function afficherPomodoro() {
   const progressPercent = Math.round(((pomodoro.totalTime - pomodoro.timeLeft) / pomodoro.totalTime) * 100);
 
   let sessionLabel = "";
-  let sessionColor = "";
   let sessionIcon = "";
 
   if (pomodoro.sessionType === "work") {
     sessionLabel = "Session de Travail";
-    sessionColor = "#FF6B6B";
     sessionIcon = "🔴";
   } else if (pomodoro.sessionType === "pause") {
     sessionLabel = "Pause Courte";
-    sessionColor = "#4ECDC4";
     sessionIcon = "🟢";
   } else {
     sessionLabel = "Pause Longue";
-    sessionColor = "#95E1D3";
     sessionIcon = "🟦";
   }
 
@@ -168,73 +164,40 @@ function afficherPomodoro() {
   let html = `
     <h2>🍅 Mode Pomodoro</h2>
     
-    <div style="text-align: center; margin-bottom: 30px;">
-      <div style="
-        background: linear-gradient(135deg, ${sessionColor}20 0%, ${sessionColor}40 100%);
-        border: 3px solid ${sessionColor};
-        border-radius: 12px;
-        padding: 30px;
-        margin-bottom: 20px;
-      ">
-        <p style="margin: 0 0 10px 0; font-size: 14px; color: var(--text);">
+    <div class="pomodoro">
+      <div class="pomodoro__session pomodoro__session--${pomodoro.sessionType}">
+        <p class="pomodoro__session-label">
           ${sessionIcon} ${sessionLabel}
         </p>
-        <p style="
-          margin: 0;
-          font-size: 48px;
-          font-weight: bold;
-          color: ${sessionColor};
-          font-family: 'Courier New', monospace;
-          letter-spacing: 4px;
-        ">
+        <p class="pomodoro__time">
           ${timeDisplay}
         </p>
       </div>
 
       <!-- Progress bar -->
-      <div style="margin-bottom: 20px;">
-        <div style="
-          background: var(--border);
-          height: 8px;
-          border-radius: 4px;
-          overflow: hidden;
-          margin-bottom: 5px;
-        ">
-          <div style="
-            background: linear-gradient(90deg, #FF6B6B 0%, #4ECDC4 50%, #95E1D3 100%);
-            height: 100%;
-            width: ${progressPercent}%;
-            transition: width 0.3s ease;
-          "></div>
-        </div>
-        <p style="margin: 0; font-size: 12px; color: var(--text); opacity: 0.7;">
+      <div class="pomodoro__progress">
+        <progress max="100" value="${progressPercent}" aria-label="Progression de la session"></progress>
+        <p class="pomodoro__cycles">
           Cycles complétés: ${pomodoro.cycleCount}
         </p>
       </div>
 
       <!-- Buttons -->
-      <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
-        <button onclick="startPomodoro()" style="flex: 1; min-width: 100px;">
+      <div class="pomodoro__actions">
+        <button class="pomodoro__action" onclick="startPomodoro()">
           ${btnStartText}
         </button>
-        <button onclick="stopPomodoro()" style="flex: 1; min-width: 100px;">
+        <button class="pomodoro__action" onclick="stopPomodoro()">
           ⏹ Arrêter
         </button>
       </div>
 
       <!-- Settings -->
-      <div style="
-        background: var(--input);
-        border: 1px solid var(--border);
-        border-radius: 8px;
-        padding: 15px;
-        text-align: left;
-        margin-bottom: 20px;
-      ">
-        <p style="margin: 0 0 10px 0; font-size: 12px; font-weight: bold; color: var(--text);">
+      <div class="pomodoro__settings">
+        <p class="pomodoro__settings-title">
           ⚙️ Paramètres
         </p>
-        <div style="display: flex; gap: 10px; flex-wrap: wrap; font-size: 12px;">
+        <div class="pomodoro__settings-fields">
           <label>
             <input type="number" id="pomWorkDuration" min="1" max="60" value="25" onchange="updatePomodoroSettings()">
             min travail
@@ -251,22 +214,14 @@ function afficherPomodoro() {
       </div>
 
       <!-- Info -->
-      <div style="
-        background: var(--success);
-        border-radius: 8px;
-        padding: 12px;
-        font-size: 12px;
-        color: #27ae60;
-        text-align: center;
-        margin-bottom: 20px;
-      ">
-        <p style="margin: 0;">
+      <div class="pomodoro__tip">
+        <p>
           💡 Astuce: Vous pouvez revenir au menu - le timer continue!
         </p>
       </div>
 
       <!-- Back button -->
-      <button onclick="closePomodoro()" style="width: 100%; padding: 10px; background: var(--button); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">
+      <button class="pomodoro__back" onclick="closePomodoro()">
         ⬅ Retour au menu
       </button>
     </div>
@@ -323,24 +278,8 @@ function afficherMiniWidgetPomodoro() {
   if (!miniWidget) {
     miniWidget = document.createElement("div");
     miniWidget.id = "miniPomodoroWidget";
-    miniWidget.style.cssText = `
-      margin-top: 20px;
-      padding: 12px;
-      background: linear-gradient(135deg, rgba(255, 107, 107, 0.2) 0%, rgba(78, 205, 196, 0.2) 100%);
-      border: 2px solid #FF6B6B;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    `;
-    miniWidget.onmouseover = function() {
-      this.style.transform = "scale(1.05)";
-      this.style.boxShadow = "0 4px 12px rgba(255, 107, 107, 0.3)";
-    };
-    miniWidget.onmouseout = function() {
-      this.style.transform = "scale(1)";
-      this.style.boxShadow = "none";
-    };
-    miniWidget.onclick = openPomodoro;
+    miniWidget.className = "pomodoro-widget";
+    miniWidget.addEventListener("click", openPomodoro);
     menu.appendChild(miniWidget);
   }
 
@@ -350,15 +289,15 @@ function afficherMiniWidgetPomodoro() {
   const statusText = pomodoro.isPaused ? "⏸ Pausé" : "▶️ En cours";
 
   miniWidget.innerHTML = `
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-      <div style="display: flex; align-items: center; gap: 10px;">
-        <span style="font-size: 18px;">${sessionIcon}</span>
+    <div class="pomodoro-widget__content">
+      <div class="pomodoro-widget__session">
+        <span class="pomodoro-widget__icon">${sessionIcon}</span>
         <div>
-          <p style="margin: 0; font-size: 12px; opacity: 0.7;">Pomodoro ${statusText}</p>
-          <p style="margin: 0; font-size: 18px; font-weight: bold; font-family: 'Courier New', monospace; letter-spacing: 2px; color: #FF6B6B;">${timeDisplay}</p>
+          <p class="pomodoro-widget__status">Pomodoro ${statusText}</p>
+          <p class="pomodoro-widget__time">${timeDisplay}</p>
         </div>
       </div>
-      <span style="font-size: 12px; opacity: 0.7;">Cliquez pour agrandir</span>
+      <span class="pomodoro-widget__hint">Cliquez pour agrandir</span>
     </div>
   `;
 }

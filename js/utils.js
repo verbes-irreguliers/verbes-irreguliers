@@ -2,17 +2,22 @@
  * utils.js - Fonctions utilitaires et communes
  */
 
-// ============ NORMALIZATION ============
-function normaliser(texte) {
-  return texte.trim().toLowerCase();
-}
-
 function normaliserAvancee(texte) {
   return texte
     .trim()
     .toLowerCase()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "");
+}
+
+function escapeHTML(value) {
+  return String(value).replace(/[&<>"']/g, character => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  })[character]);
 }
 
 // ============ ANSWER COMPARISON ============
@@ -26,31 +31,39 @@ function reponseCorrecte(userInput, solutions) {
 
 // Distance de Levenshtein pour tolérer les fautes de frappe
 function distanceLevenshtein(str1, str2) {
-  const m = str1.length;
-  const n = str2.length;
-  const dp = Array(m + 1).fill(null).map(() => Array(n + 1).fill(0));
+  let longer = str1;
+  let shorter = str2;
 
-  for (let i = 0; i <= m; i++) dp[i][0] = i;
-  for (let j = 0; j <= n; j++) dp[0][j] = j;
-
-  for (let i = 1; i <= m; i++) {
-    for (let j = 1; j <= n; j++) {
-      if (str1[i - 1] === str2[j - 1]) {
-        dp[i][j] = dp[i - 1][j - 1];
-      } else {
-        dp[i][j] = 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
-      }
-    }
+  if (shorter.length > longer.length) {
+    [longer, shorter] = [shorter, longer];
   }
-  return dp[m][n];
+
+  let previousRow = Array.from({ length: shorter.length + 1 }, (_, index) => index);
+
+  for (let row = 1; row <= longer.length; row++) {
+    const currentRow = [row];
+
+    for (let column = 1; column <= shorter.length; column++) {
+      const substitutionCost = longer[row - 1] === shorter[column - 1] ? 0 : 1;
+      currentRow[column] = Math.min(
+        previousRow[column] + 1,
+        currentRow[column - 1] + 1,
+        previousRow[column - 1] + substitutionCost
+      );
+    }
+
+    previousRow = currentRow;
+  }
+
+  return previousRow[shorter.length];
 }
 
 // Vérifie si la réponse est correcte avec tolérance aux fautes de frappe
 function reponseSensCorrect(userInput, correctSense) {
   const user = normaliserAvancee(userInput);
   const correct = normaliserAvancee(correctSense);
-  
-  // Match exact
+  if (!user) return false;
+
   if (user === correct) return true;
   
   // Vérifier les variantes avec slashes
@@ -68,23 +81,6 @@ function reponseSensCorrect(userInput, correctSense) {
   }
   
   return false;
-}
-
-function comparaisonVisuelle(userInput, solution) {
-  let html = "";
-  const max = Math.max(userInput.length, solution.length);
-
-  for (let i = 0; i < max; i++) {
-    const u = userInput[i] || "";
-    const s = solution[i] || "";
-
-    if (u === s) {
-      html += `<span style="color:green">${u}</span>`;
-    } else {
-      html += `<span style="color:red">${u || "␣"}</span>`;
-    }
-  }
-  return html;
 }
 
 // ============ ANIMATIONS ============
@@ -110,7 +106,7 @@ function playSound(soundName) {
   const audio = audioElements[soundName];
   if (audio) {
     audio.currentTime = 0;
-    audio.play().catch(err => console.log("Son non joué:", err));
+    audio.play().catch(err => console.warn("Son non joué:", err));
   }
 }
 
@@ -154,14 +150,8 @@ function getDueVerbs(pool) {
 }
 
 function choisirVerbe() {
-  // Use verbesActifs if in targeted mode (revision ciblée, listes perso, etc.)
-  let pool;
-  if (mode === "targeted" && verbesActifs && verbesActifs.length > 0) {
-    pool = verbesActifs;
-  } else {
-    // Normal mode: use group-based progression
-    pool = getActivePool();
-  }
+  const pool = mode === "targeted" ? verbesActifs : getActivePool();
+  if (!pool.length) return null;
   
   const due = getDueVerbs(pool);
 
@@ -169,9 +159,9 @@ function choisirVerbe() {
     return due[Math.floor(Math.random() * due.length)];
   }
 
-  return pool.sort((a, b) => {
-    return stats[a.inf].nextReview - stats[b.inf].nextReview;
-  })[0];
+  return pool.reduce((earliest, verb) =>
+    stats[verb.inf].nextReview < stats[earliest.inf].nextReview ? verb : earliest
+  );
 }
 
 // ============ GROUPS DISPLAY ============
@@ -237,18 +227,13 @@ function insertSpecialChar(character, event) {
 // ============ NOTIFICATION UTILITIES ============
 function showAlertNotification(title, message, duration = 4000) {
   const div = document.createElement("div");
-  div.style.position = "fixed";
-  div.style.bottom = "20px";
-  div.style.right = "20px";
-  div.style.background = "#ffd700";
-  div.style.padding = "15px";
-  div.style.borderRadius = "10px";
-  div.style.boxShadow = "0 4px 10px rgba(0,0,0,.2)";
-  div.style.zIndex = "9999";
-  div.innerHTML = `
-    <strong>${title}</strong><br>
-    ${message}
-  `;
+  div.className = "notification-toast";
+
+  const heading = document.createElement("strong");
+  heading.textContent = title;
+  const body = document.createElement("p");
+  body.textContent = message;
+  div.append(heading, body);
 
   document.body.appendChild(div);
 
@@ -265,9 +250,11 @@ function downloadJSON(data, filename) {
   const a = document.createElement("a");
   a.href = url;
   a.download = filename;
+  document.body.appendChild(a);
   a.click();
+  a.remove();
 
-  URL.revokeObjectURL(url);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 // ============ DATE UTILITIES ============
@@ -287,19 +274,15 @@ function filtrerVerbes(type, containerSelector = "#tbodyVerbes") {
   const rows = document.querySelectorAll(containerSelector + " tr");
 
   rows.forEach(row => {
-    row.style.display = "";
+    const visible = type === "probleme"
+      ? row.classList.contains("verbe-probleme")
+      : type === "maitrise"
+        ? row.classList.contains("verbe-maitrise")
+        : type === "encours"
+          ? !row.classList.contains("verbe-probleme") &&
+            !row.classList.contains("verbe-maitrise")
+          : true;
 
-    if (type === "probleme" && !row.classList.contains("verbe-probleme")) {
-      row.style.display = "none";
-    }
-
-    if (type === "maitrise" && !row.classList.contains("verbe-maitrise")) {
-      row.style.display = "none";
-    }
-
-    if (type === "encours" &&
-        (row.classList.contains("verbe-probleme") || row.classList.contains("verbe-maitrise"))) {
-      row.style.display = "none";
-    }
+    row.classList.toggle("filtered-out", !visible);
   });
 }

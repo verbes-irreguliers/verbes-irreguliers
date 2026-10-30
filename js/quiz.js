@@ -20,6 +20,12 @@ function startQuiz(m = "random") {
 
 function nextQuestion() {
   currentVerb = choisirVerbe();
+  if (!currentVerb) {
+    alert("Aucun verbe à réviser dans cette liste.");
+    quitQuiz();
+    return;
+  }
+
   initCardStats(currentVerb.inf);
 
   stats[currentVerb.inf].propositions++;
@@ -142,10 +148,10 @@ function checkAnswer() {
   if (resultDiv) {
     resultDiv.innerHTML = `
       <strong>Correction :</strong><br>
-      ${currentVerb.inf} – ${currentVerb.sens}<br>
-      Présent : ${currentVerb.pres}<br>
-      Prétérit : ${currentVerb.pret}<br>
-      Parfait : ${currentVerb.parf}<br>
+      ${escapeHTML(currentVerb.inf)} – ${escapeHTML(currentVerb.sens)}<br>
+      Présent : ${escapeHTML(currentVerb.pres)}<br>
+      Prétérit : ${escapeHTML(currentVerb.pret)}<br>
+      Parfait : ${escapeHTML(currentVerb.parf)}<br>
       🎯 Score : ${score}/3<br>
       ⏳ Prochaine révision : ${formatDate(stats[currentVerb.inf].nextReview)}
     `;

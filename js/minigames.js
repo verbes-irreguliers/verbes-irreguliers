@@ -63,10 +63,6 @@ const MINI_GAMES = [
 ];
 
 // ============ GAME STATE ============
-let jeuActif = null;
-let scoreJeuActuel = 0;
-let tempsJeuActuel = 0;
-
 // ============ GET UNLOCKED GAMES ============
 function getJeuxDébloques() {
   const groupes = groupesDebloques();
@@ -104,23 +100,20 @@ function afficherMiniJeux() {
   if (jeux.length === 0) {
     html += `<p>🔒 Aucun jeu débloqué pour le moment. Déverrouillez des groupes de verbes !</p>`;
   } else {
-    html += `<div class="games-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">`;
+    html += `<div class="games-container">`;
     
     jeux.forEach(jeu => {
       html += `
-        <div style="background: var(--input); padding: 15px; border-radius: 8px; text-align: center; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" 
-             onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.2)'" 
-             onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none'"
-             onclick="demarrerJeu('${jeu.id}')">
-          <div style="font-size: 40px; margin-bottom: 10px;">${jeu.icon}</div>
-          <h3 style="margin: 5px 0;">${jeu.titre}</h3>
-          <p style="font-size: 12px; margin: 0 0 10px 0;">${jeu.description}</p>
-          <button style="width: 100%; padding: 8px; background: var(--button); color: var(--text); border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Jouer</button>
+        <div class="game-card" onclick="demarrerJeu('${jeu.id}')">
+          <div class="game-card__icon">${jeu.icon}</div>
+          <h3 class="game-card__title">${jeu.titre}</h3>
+          <p class="game-card__description">${jeu.description}</p>
+          <button class="game-card__button">Jouer</button>
         </div>
       `;
     });
     
-    html += `<br>Débloquez des groupes de verbes pour déverrouiller de nouveaux jeux !</div>`;
+    html += `</div><p class="games-hint">Débloquez des groupes de verbes pour déverrouiller de nouveaux jeux !</p>`;
   }
   
   html += `<button onclick="fermerMiniJeux()">⬅️ Retour</button>`;
@@ -139,10 +132,6 @@ function fermerMiniJeux() {
 
 // ============ GAME LAUNCHER ============
 function demarrerJeu(jeuId) {
-  jeuActif = jeuId;
-  scoreJeuActuel = 0;
-  tempsJeuActuel = 0;
-  
   switch(jeuId) {
     case "pendu":
       demarrerPendu();
@@ -212,10 +201,10 @@ function afficherPendu() {
   let html = `
     <h2>🎮 Pendu</h2>
     <p><strong>Infinitif :</strong> ${penduState.verbeCourant.sens}</p>
-    <p style="font-size: 24px; font-family: monospace; letter-spacing: 5px; font-weight: bold;">${affichage}</p>
-    <p>Essais restants : <strong style="color: ${penduState.tentativesRestantes > 3 ? 'green' : penduState.tentativesRestantes > 1 ? 'orange' : 'red'};">${penduState.tentativesRestantes}</strong></p>
+    <p class="hangman-word">${affichage}</p>
+    <p>Essais restants : <strong class="hangman-attempts ${penduState.tentativesRestantes > 3 ? "hangman-attempts--many" : penduState.tentativesRestantes > 1 ? "hangman-attempts--some" : "hangman-attempts--few"}">${penduState.tentativesRestantes}</strong></p>
     <p>Lettres essayées : ${penduState.lettresEssayees.join(", ") || "Aucune"}</p>
-    <div style="display: grid; grid-template-columns: repeat(8, 1fr); gap: 5px; margin: 15px 0;">
+    <div class="hangman-letters">
   `;
   
   for (let lettre of alphabet) {
@@ -226,7 +215,7 @@ function afficherPendu() {
       <button 
         onclick="essayerLettrePendu('${lettre}')"
         ${utilisee ? 'disabled' : ''}
-        style="padding: 8px; background: ${utilisee ? 'var(--disabled)' : trouvee ? 'green' : 'var(--button)'}; color: var(--text); border: none; border-radius: 4px; cursor: ${utilisee ? 'not-allowed' : 'pointer'}; font-weight: bold;">
+        class="hangman-letter ${utilisee ? "is-used" : trouvee ? "is-found" : ""}">
         ${lettre.toUpperCase()}
       </button>
     `;
@@ -236,10 +225,10 @@ function afficherPendu() {
   
   const motComplet = mot.split("").every(l => penduState.lettresTrouvees.includes(l));
   if (motComplet) {
-    html += `<p style="color: green; font-weight: bold; font-size: 18px;">✅ Vous avez trouvé ! Le mot était : <strong>${mot}</strong></p>`;
+    html += `<p class="game-result game-result--success">✅ Vous avez trouvé ! Le mot était : <strong>${mot}</strong></p>`;
     html += `<button onclick="demarrerPendu()">Suivant</button>`;
   } else if (penduState.tentativesRestantes === 0) {
-    html += `<p style="color: red; font-weight: bold; font-size: 18px;">❌ Perdu ! Le mot était : <strong>${mot}</strong></p>`;
+    html += `<p class="game-result game-result--error">❌ Perdu ! Le mot était : <strong>${mot}</strong></p>`;
     html += `<button onclick="demarrerPendu()">Réessayer</button>`;
   }
   
@@ -319,12 +308,12 @@ function afficherVraiFaux() {
     <p><strong>Infinitif :</strong> ${verbe.inf}</p>
     <p><strong>Sens :</strong> ${verbe.sens}</p>
     <p><strong>Le ${titleMap[typeConjugaison]} de "${verbe.inf}" est :</strong></p>
-    <p style="font-size: 20px; background: var(--input); padding: 15px; border-radius: 8px; margin: 20px 0; font-family: monospace;">
+    <p class="game-word">
       ${reponseAffichee}
     </p>
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0;">
-      <button onclick="repondreVraiFaux(true)" style="padding: 15px; background: green; color: white; font-size: 18px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">✓ Vrai</button>
-      <button onclick="repondreVraiFaux(false)" style="padding: 15px; background: red; color: white; font-size: 18px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">✗ Faux</button>
+    <div class="game-choice-grid game-choice-grid--spaced">
+      <button onclick="repondreVraiFaux(true)" class="game-choice game-choice--true">✓ Vrai</button>
+      <button onclick="repondreVraiFaux(false)" class="game-choice game-choice--false">✗ Faux</button>
     </div>
     <button onclick="afficherMiniJeux()">⬅️ Retour</button>
   `;
@@ -349,7 +338,7 @@ function afficherResultatVraiFaux() {
   if (container) {
     container.innerHTML = `
       <h2>✓✗ Vrai ou Faux - Terminé</h2>
-      <p style="font-size: 24px; font-weight: bold;">Votre score : <strong style="color: var(--primary);">${vraiFauxState.score}</strong> / <strong>${vraiFauxState.total}</strong></p>
+      <p class="game-score">Votre score : <strong>${vraiFauxState.score}</strong> / <strong>${vraiFauxState.total}</strong></p>
       <button onclick="demarrerVraiFaux()">Rejouer</button>
       <button onclick="afficherMiniJeux()">⬅️ Retour</button>
     `;
@@ -397,7 +386,7 @@ function afficherMemoire() {
   let html = `
     <h2>🧠 Jeu de Mémoire</h2>
     <p>Paires trouvées : <strong>${memoireState.pairesFound}</strong> / <strong>${memoireState.totalPaires}</strong></p>
-    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 20px 0;">
+    <div class="memory-grid">
   `;
   
   memoireState.cartes.forEach(carte => {
@@ -407,26 +396,7 @@ function afficherMemoire() {
     html += `
       <div 
         onclick="${estTrouvee ? '' : `retournerCarteMémoire(${carte.id})`}"
-        style="
-          width: 100%;
-          aspect-ratio: 1;
-          background: ${estTrouvee ? 'var(--success)' : estRetournee ? 'var(--input)' : 'var(--button)'};
-          border: 2px solid ${estTrouvee ? 'green' : 'var(--primary)'};
-          border-radius: 8px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          cursor: ${estTrouvee ? 'default' : 'pointer'};
-          font-weight: bold;
-          font-size: 12px;
-          text-align: center;
-          padding: 5px;
-          transition: all 0.3s;
-          overflow: hidden;
-          word-break: break-word;
-        "
-        onmouseover="${estTrouvee ? '' : `this.style.transform='scale(1.05)'`}"
-        onmouseout="${estTrouvee ? '' : `this.style.transform='scale(1)'`}"
+        class="memory-card${estTrouvee ? " memory-card--found" : estRetournee ? " memory-card--revealed" : ""}"
       >
         ${estTrouvee || estRetournee ? carte.affiche : '?'}
       </div>
@@ -436,7 +406,7 @@ function afficherMemoire() {
   html += `</div>`;
   
   if (memoireState.pairesFound === memoireState.totalPaires) {
-    html += `<p style="color: green; font-weight: bold; font-size: 18px;">🎉 Bravo ! Vous avez trouvé toutes les paires !</p>`;
+    html += `<p class="game-result game-result--success">🎉 Bravo ! Vous avez trouvé toutes les paires !</p>`;
     html += `<button onclick="demarrerMemoire()">Rejouer</button>`;
   }
   
@@ -526,18 +496,18 @@ function afficherTraduction() {
     <h2>🔤 Traduction</h2>
     <p>Score : <strong>${traductionState.score}</strong> / <strong>${traductionState.total}</strong></p>
     <hr>
-    <p style="font-size: 18px; font-weight: bold; margin: 20px 0;">Quel verbe signifie :</p>
-    <p style="font-size: 24px; background: var(--input); padding: 15px; border-radius: 8px; margin: 20px 0; color: var(--primary); font-weight: bold;">
+    <p class="game-question">Quel verbe signifie :</p>
+    <p class="game-word game-word--primary">
       ${verbe.sens}
     </p>
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 20px 0;">
+    <div class="game-choice-grid">
   `;
   
   options.forEach(option => {
     html += `
       <button 
         onclick="repondreTraduction('${option.inf}')"
-        style="padding: 15px; background: var(--button); color: var(--text); border: 2px solid var(--primary); border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 16px;">
+        class="game-choice">
         ${option.inf}
       </button>
     `;
@@ -564,7 +534,7 @@ function afficherResultatTraduction() {
   if (container) {
     container.innerHTML = `
       <h2>🔤 Traduction - Terminé</h2>
-      <p style="font-size: 24px; font-weight: bold;">Votre score : <strong style="color: var(--primary);">${traductionState.score}</strong> / <strong>${traductionState.total}</strong></p>
+      <p class="game-score">Votre score : <strong>${traductionState.score}</strong> / <strong>${traductionState.total}</strong></p>
       <button onclick="demarrerTraduction()">Rejouer</button>
       <button onclick="afficherMiniJeux()">⬅️ Retour</button>
     `;
@@ -628,52 +598,34 @@ function afficherRelier() {
     <h2>🔗 Relier les Formes</h2>
     <p>Paires trouvées : <strong>${relierState.pairesRappelees}</strong> / <strong>${relierState.totalPaires}</strong></p>
     <hr>
-    <p style="font-size: 14px;">Cliquez sur un infinitif puis sur sa conjugaison :</p>
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0;">
-      <div style="border: 2px solid var(--primary); padding: 15px; border-radius: 8px;">
-        <p style="font-weight: bold; margin-bottom: 10px;">Infinitifs :</p>
-        <div style="display: flex; flex-direction: column; gap: 8px;">
+    <p class="matching-instructions">Cliquez sur un infinitif puis sur sa conjugaison :</p>
+    <div class="matching-grid">
+      <div class="matching-panel">
+        <p class="matching-panel__title">Infinitifs :</p>
+        <div class="matching-list">
   `;
   
   relierState.verbes.forEach((v, i) => {
     html += `
       <button 
         onclick="selectionnerInfinitif(${i})"
-        style="
-          padding: 10px;
-          background: ${relierState.verbeCourant === i ? 'var(--primary)' : 'var(--button)'};
-          color: var(--text);
-          border: 2px solid ${relierState.verbeCourant === i ? 'green' : 'var(--primary)'};
-          border-radius: 4px;
-          cursor: pointer;
-          font-weight: bold;
-          text-align: left;
-        ">
+        class="matching-option${relierState.verbeCourant === i ? " matching-option--selected" : ""}">
         ${v.inf}
       </button>
     `;
   });
   
-  html += `</div></div><div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0;">
-      <div style="border: 2px solid var(--primary); padding: 15px; border-radius: 8px;">
-        <p style="font-weight: bold; margin-bottom: 10px;">Conjugaisons :</p>
-        <div style="display: flex; flex-direction: column; gap: 8px;">
+  html += `</div></div><div class="matching-grid">
+      <div class="matching-panel">
+        <p class="matching-panel__title">Conjugaisons :</p>
+        <div class="matching-list">
   `;
   
   relierState.conjugaisonsAlea.forEach((c, i) => {
     html += `
       <button 
         onclick="selectionnerConjugaison(${i})"
-        style="
-          padding: 10px;
-          background: var(--button);
-          color: var(--text);
-          border: 2px solid var(--primary);
-          border-radius: 4px;
-          cursor: pointer;
-          font-weight: bold;
-          text-align: left;
-        ">
+        class="matching-option">
         ${c.conjugaison}
       </button>
     `;
@@ -713,7 +665,7 @@ function afficherResultatRelier() {
   if (container) {
     container.innerHTML = `
       <h2>🔗 Relier les Formes - Terminé</h2>
-      <p style="font-size: 24px; font-weight: bold;">Bravo ! 🎉</p>
+      <p class="game-score">Bravo ! 🎉</p>
       <p>Vous avez trouvé toutes les paires !</p>
       <button onclick="demarrerRelier()">Rejouer</button>
       <button onclick="afficherMiniJeux()">⬅️ Retour</button>
@@ -771,12 +723,12 @@ function mettreAJourDefiVitesse() {
   
   let html = `
     <h2>⚡ Défi de Vitesse</h2>
-    <p>Score : <strong>${defiVitesseState.score}</strong> | Temps : <strong style="color: ${defiVitesseState.temps <= 10 ? 'red' : 'green'};">${defiVitesseState.temps}s</strong></p>
+    <p>Score : <strong>${defiVitesseState.score}</strong> | Temps : <strong class="${defiVitesseState.temps <= 10 ? "speed-timer speed-timer--low" : "speed-timer"}">${defiVitesseState.temps}s</strong></p>
     <hr>
     <p><strong>Infinitif :</strong> ${defiVitesseState.verbeCourant.inf}</p>
     <p><strong>Sens :</strong> ${defiVitesseState.verbeCourant.sens}</p>
     <p><strong>Trouvez le ${types[typeActuel]} :</strong></p>
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 20px 0;">
+    <div class="game-choice-grid">
   `;
   
   const bonneReponse = defiVitesseState.verbeCourant[typeActuel];
@@ -796,7 +748,7 @@ function mettreAJourDefiVitesse() {
     html += `
       <button 
         onclick="verifierReponseDefi('${reponse}')"
-        style="padding: 15px; background: var(--button); color: var(--text); border: 2px solid var(--primary); border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px;">
+        class="game-choice game-choice--compact">
         ${reponse}
       </button>
     `;
@@ -832,7 +784,7 @@ function terminerDefiVitesse() {
   if (container) {
     container.innerHTML = `
       <h2>⚡ Défi de Vitesse Terminé</h2>
-      <p style="font-size: 24px; font-weight: bold;">Votre score : <strong style="color: var(--primary);">${defiVitesseState.score}</strong></p>
+      <p class="game-score">Votre score : <strong>${defiVitesseState.score}</strong></p>
       <button onclick="demarrerDefiVitesse()">Réessayer</button>
       <button onclick="afficherMiniJeux()">⬅️ Retour</button>
     `;
@@ -909,13 +861,13 @@ function afficherMaitrise() {
   if (typeQuestion === 0) {
     // Traduction
     html += `
-      <p style="font-size: 18px; font-weight: bold;">Quel verbe signifie : <span style="color: var(--primary);">${verbe.sens}</span> ?</p>
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 20px 0;">
+      <p class="game-question">Quel verbe signifie : <span class="game-question__highlight">${verbe.sens}</span> ?</p>
+      <div class="game-choice-grid">
     `;
     options.forEach(option => {
       html += `
         <button onclick="repondreMaitrise('${option.inf}')" 
-          style="padding: 15px; background: var(--button); color: var(--text); border: 2px solid var(--primary); border-radius: 6px; cursor: pointer; font-weight: bold;">
+          class="game-choice">
           ${option.inf}
         </button>
       `;
@@ -930,8 +882,8 @@ function afficherMaitrise() {
       const typeLabel = { "pres": "Présent", "pret": "Prétérit", "parf": "Parfait" }[typeConjMap];
       
       html += `
-        <p style="font-size: 18px; font-weight: bold;">Quel est le ${typeLabel} de "${verbe.inf}" (${verbe.sens}) ?</p>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 20px 0;">
+        <p class="game-question">Quel est le ${typeLabel} de "${verbe.inf}" (${verbe.sens}) ?</p>
+        <div class="game-choice-grid">
       `;
       
       const bonneReponse = verbe[typeConjMap];
@@ -947,7 +899,7 @@ function afficherMaitrise() {
       reponses.forEach(reponse => {
         html += `
           <button onclick="repondreMaitrise('${reponse}')" 
-            style="padding: 15px; background: var(--button); color: var(--text); border: 2px solid var(--primary); border-radius: 6px; cursor: pointer; font-weight: bold;">
+            class="game-choice">
             ${reponse}
           </button>
         `;
@@ -968,13 +920,13 @@ function afficherMaitrise() {
       }
       
       html += `
-        <p style="font-size: 18px; font-weight: bold;">Le ${typeLabel} de "${verbe.inf}" est :</p>
-        <p style="font-size: 20px; background: var(--input); padding: 15px; border-radius: 8px; margin: 20px 0; font-family: monospace;">
+        <p class="game-question">Le ${typeLabel} de "${verbe.inf}" est :</p>
+        <p class="game-word">
           ${reponseAffichee}
         </p>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0;">
-          <button onclick="repondreMaitrise(true)" style="padding: 15px; background: green; color: white; font-size: 18px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">✓ Vrai</button>
-          <button onclick="repondreMaitrise(false)" style="padding: 15px; background: red; color: white; font-size: 18px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">✗ Faux</button>
+        <div class="game-choice-grid game-choice-grid--spaced">
+          <button onclick="repondreMaitrise(true)" class="game-choice game-choice--true">✓ Vrai</button>
+          <button onclick="repondreMaitrise(false)" class="game-choice game-choice--false">✗ Faux</button>
         </div>
       `;
       maitriseState.bonneReponse = estCorrect;
@@ -1001,7 +953,7 @@ function afficherResultatMaitrise() {
   if (container) {
     container.innerHTML = `
       <h2>👑 Maîtrise du Verbe - Terminé</h2>
-      <p style="font-size: 24px; font-weight: bold;">Votre score : <strong style="color: var(--primary);">${maitriseState.score}</strong> / <strong>${maitriseState.total}</strong></p>
+      <p class="game-score">Votre score : <strong>${maitriseState.score}</strong> / <strong>${maitriseState.total}</strong></p>
       <button onclick="demarrerMaitriseVerbe()">Rejouer</button>
       <button onclick="afficherMiniJeux()">⬅️ Retour</button>
     `;

@@ -7,7 +7,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Révision des verbes allemands</title>
   <link rel="stylesheet" href="css/style.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 
 <body>
@@ -30,7 +29,7 @@
       <button onclick="openPomodoro()">🍅 Pomodoro</button>
       <button onclick="openSettings()">⚙️ Paramètres</button>
 
-      <p style="text-align: center; margin-top: 10px; font-size: 150%;">
+      <p class="streak-status">
         🔥 Série actuelle : <strong id="streakMenu">0</strong> jour(s)
       </p>
     </div>
@@ -51,73 +50,61 @@
     <h1>⚙️ Paramètres</h1>
 
     <!-- THEME SELECTOR -->
-    <div style="margin-bottom: 20px;">
-      <label style="display: block; margin-bottom: 10px; font-weight: bold;">
+    <div class="settings-group">
+      <label class="settings-label">
         🎨 Sélectionner un thème :
       </label>
 
-      <div style="display: flex; gap: 5px; flex-wrap: wrap;">
-        <button onclick="changeTheme('light')" style="flex: 1; min-width: 80px;">☀️ Clair</button>
-        <button onclick="changeTheme('dark')" style="flex: 1; min-width: 80px;">🌙 Sombre</button>
+      <div class="theme-options">
+        <button onclick="changeTheme('light')">☀️ Clair</button>
+        <button onclick="changeTheme('dark')">🌙 Sombre</button>
       </div>
 
-      <div style="display: flex; gap: 5px; flex-wrap: wrap; margin-top: 5px;">
-        <button onclick="changeTheme('dracula')" style="flex: 1; min-width: 80px;">🦇 Dracula</button>
-        <button onclick="changeTheme('nord')" style="flex: 1; min-width: 80px;">❄️ Nord</button>
+      <div class="theme-options">
+        <button onclick="changeTheme('dracula')">🦇 Dracula</button>
+        <button onclick="changeTheme('nord')">❄️ Nord</button>
       </div>
 
-      <div style="display: flex; gap: 5px; flex-wrap: wrap; margin-top: 5px;">
-        <button onclick="changeTheme('everforestdark')" style="flex: 1; min-width: 80px;">🌲 Everforest Sombre</button>
-        <button onclick="changeTheme('everforestlight')" style="flex: 1; min-width: 80px;">🌳 Everforest Clair</button>
+      <div class="theme-options">
+        <button onclick="changeTheme('everforestdark')">🌲 Everforest Sombre</button>
+        <button onclick="changeTheme('everforestlight')">🌳 Everforest Clair</button>
       </div>
 
-      <div style="display: flex; gap: 5px; flex-wrap: wrap; margin-top: 5px;">
-        <button onclick="changeTheme('colorful')" style="flex: 1; min-width: 80px;">🌈 Coloré</button>
-        <button onclick="changeTheme('highcontrast')" style="flex: 1; min-width: 80px;">⚫⚪ Contraste</button>
+      <div class="theme-options">
+        <button onclick="changeTheme('colorful')">🌈 Coloré</button>
+        <button onclick="changeTheme('highcontrast')">⚫⚪ Contraste</button>
       </div>
-    </div>
-
-    <!-- DYSLEXIC FONT SECTION -->
-    <div style="margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border);">
-      <!--
-      <button onclick="toggleDyslexicFont()" id="btnDyslexicSettings" style="width: 100%;">
-        📖 Activer police dyslexique
-      </button>
-      -->
     </div>
 
     <!-- DATA MANAGEMENT -->
-    <div style="margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border);">
-      <label style="display: block; margin-bottom: 10px; font-weight: bold;">
+    <div class="settings-section">
+      <label class="settings-label">
         📊 Gestion des données :
       </label>
 
-      <button onclick="exporterDonnees()" style="width: 100%; margin-bottom: 8px;">
+      <button class="settings-action" onclick="exporterDonnees()">
         💾 Exporter mes progrès
       </button>
 
-      <button onclick="importerDonnees()" style="width: 100%;">
+      <button class="settings-action" onclick="importerDonnees()">
         📂 Importer mes progrès
       </button>
     </div>
 
-    <p style="font-size: 14px; margin-top: -20px; margin-bottom: -10px;">
+    <p class="legal-notice legal-notice--settings">
       © 2026 Rémi Caitucoli Zimmermann — Licence GPL-3.0
       <br>
-      <span style="font-size: 10px;">
+      <span class="legal-notice__note">
         Sauf les effets sonores, qui sont sous licence Pixabay.
       </span>
     </p>
 
-    <br>
-
-    <a href="https://github.com/verbes-irreguliers/verbes-irreguliers"
-       style="font-size: 16px; margin-bottom: -20px;">
+    <a class="source-link" href="https://github.com/verbes-irreguliers/verbes-irreguliers">
       Code source
     </a>
 
     <!-- BACK BUTTON -->
-    <button onclick="closeSettings()" style="width: 100%; margin-top: 15px;">
+    <button onclick="closeSettings()">
       ⬅ Retour
     </button>
   </div>
@@ -126,10 +113,10 @@
   <div id="helpPanel" class="card hidden">
     <h1>❓ Manuel d'aide</h1>
 
-    <div style="margin-bottom: 20px; line-height: 1.6;">
+    <div class="help-content">
       <p>Bienvenue dans le guide d'utilisation. Voici comment tirer le meilleur parti de l'application :</p>
 
-      <ul style="padding-left: 22px; margin-top: 10px;">
+      <ul class="help-list">
         <li>
           <strong>Révision ciblée</strong> : lance un quiz sur les verbes allemands avec conjugaisons et sens.
           Lorsqu'il faut conjuguer, écris les verbes à la troisième personne du singulier avec « er »
@@ -178,7 +165,7 @@
       </p>
     </div>
 
-    <button onclick="closeHelp()" style="width: 100%; margin-top: 15px;">
+    <button onclick="closeHelp()">
       ⬅ Retour
     </button>
   </div>
@@ -187,7 +174,7 @@
   <div id="quiz" class="card hidden">
     <h1>📝 Quiz</h1>
 
-    <form id="quizForm" onsubmit="checkAnswer(); return false;">
+    <form id="quizForm">
       <p><strong>Infinitif :</strong> <span id="inf"></span></p>
       <p><strong>Sens :</strong> <span id="sens"></span></p>
 
@@ -211,13 +198,10 @@
         <input id="parf" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
       </label>
 
-    <div class="special-char-container">
-      <button type="button" class="special-char" tabindex="-1"
-        onmousedown="insertSpecialChar('ß', event)">ß</button>
-
-      <button type="button" class="special-char" tabindex="-1"
-        onmousedown="insertSpecialChar('ä', event)">ä</button>
-    </div>
+      <div class="special-char-container">
+        <button type="button" class="special-char" tabindex="-1" data-special-char="ß">ß</button>
+        <button type="button" class="special-char" tabindex="-1" data-special-char="ä">ä</button>
+      </div>
 
       <button id="checkAnswerBtn" type="submit">Valider</button>
     </form>
@@ -247,10 +231,8 @@
 
       <label>
         Infinitif
-        <div style="position: relative;">
-          <input id="p_inf" type="text" autocomplete="off"
-                 oninput="suggestionsInfinitif()"
-                 onblur="fermerSuggestionsAvecDelai()">
+        <div class="suggestions-wrapper">
+          <input id="p_inf" type="text" autocomplete="off">
           <div id="suggestions" class="suggestions hidden"></div>
         </div>
       </label>
@@ -275,16 +257,16 @@
         <input id="p_sens" type="text">
       </label>
 
-      <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; margin-bottom: 10px;">
-        <button type="button" class="special-char" tabindex="-1" onmousedown="insertSpecialChar('ß', event)">ß</button>
-        <button type="button" class="special-char" tabindex="-1" onmousedown="insertSpecialChar('ä', event)">ä</button>
+      <div class="special-char-container">
+        <button type="button" class="special-char" tabindex="-1" data-special-char="ß">ß</button>
+        <button type="button" class="special-char" tabindex="-1" data-special-char="ä">ä</button>
       </div>
 
       <button onclick="ajouterVerbePerso()">💾 Ajouter le verbe</button>
       <button onclick="reviserListePerso()">🎯 Réviser cette liste</button>
       <button onclick="exporterListe()">📤 Exporter la liste</button>
 
-      <label style="margin-top: 10px;">
+      <label class="import-list-label">
         📥 Importer une liste
         <input type="file" id="importListeInput" accept=".json">
       </label>
@@ -299,8 +281,8 @@
 
     <div id="statsContent"></div>
 
-    <div id="groupInfo" style="margin-bottom: 15px;">
-      <div style="font-weight: bold;">
+    <div id="groupInfo" class="group-info">
+      <div class="group-title">
         Groupe actuel : <span id="currentGroup">1</span>
       </div>
 
@@ -308,7 +290,7 @@
         <div id="groupProgressBar" class="progress-fill"></div>
       </div>
 
-      <div style="font-size: 12px; margin-top: 4px;">
+      <div class="group-progress-label">
         Progression : <span id="groupPercent">0</span>%
       </div>
     </div>
@@ -316,28 +298,8 @@
     <div id="listeCompleteVerbes" class="hidden"></div>
 
     <!-- MODAL POPUP POUR LES CONJUGAISONS -->
-    <div id="modalConjugaisons" class="hidden" style="
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.5);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-    ">
-      <div style="
-        background: rgba(216, 216, 216, 0.927);
-        padding: 30px;
-        border-radius: 12px;
-        max-width: 500px;
-        max-height: 80vh;
-        overflow-y: auto;
-        box-shadow: 0 4px 20px rgba(225, 225, 225, 0.3);
-        border: 2px solid var(--primary);
-      ">
+    <div id="modalConjugaisons" class="hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="conjugation-modal__content">
         <div id="modalContent"></div>
       </div>
     </div>

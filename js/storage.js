@@ -8,42 +8,27 @@ let streak = JSON.parse(localStorage.getItem("streak")) || { count: 0, lastDate:
 let listesPerso = JSON.parse(localStorage.getItem("listesPerso")) || {};
 let succesState = JSON.parse(localStorage.getItem("succes")) || { debloques: [], perfectStreak: 0 };
 
-// Initialize stats for all base verbs
-VERBES.forEach(v => initCardStats(v.inf));
+// ============ CART STATS INITIALIZATION ============
+const DEFAULT_CARD_STATS = {
+  repetitions: 0,
+  interval: 0,
+  easeFactor: 2.5,
+  nextReview: 0,
+  lapses: 0,
+  propositions: 0,
+  erreurs: 0,
+  maitrise: 0
+};
 
-// Initialize stats for personal list verbs
+function initCardStats(inf) {
+  stats[inf] = { ...DEFAULT_CARD_STATS, ...stats[inf] };
+}
+
+VERBES.forEach(v => initCardStats(v.inf));
 Object.values(listesPerso).forEach(liste => {
   liste.forEach(v => initCardStats(v.inf));
 });
-
-// Save stats to ensure all properties are persisted
 saveStats();
-
-// ============ CART STATS INITIALIZATION ============
-function initCardStats(inf) {
-  if (!stats[inf]) {
-    stats[inf] = {
-      repetitions: 0,
-      interval: 0,
-      easeFactor: 2.5,
-      nextReview: 0,
-      lapses: 0,
-      propositions: 0,
-      erreurs: 0,
-      maitrise: 0
-    };
-  } else {
-    // Ensure all required properties exist (migration for old data)
-    if (!("maitrise" in stats[inf])) stats[inf].maitrise = 0;
-    if (!("repetitions" in stats[inf])) stats[inf].repetitions = 0;
-    if (!("interval" in stats[inf])) stats[inf].interval = 0;
-    if (!("easeFactor" in stats[inf])) stats[inf].easeFactor = 2.5;
-    if (!("nextReview" in stats[inf])) stats[inf].nextReview = 0;
-    if (!("lapses" in stats[inf])) stats[inf].lapses = 0;
-    if (!("propositions" in stats[inf])) stats[inf].propositions = 0;
-    if (!("erreurs" in stats[inf])) stats[inf].erreurs = 0;
-  }
-}
 
 // ============ SAVE FUNCTIONS ============
 function saveStats() {
@@ -60,24 +45,6 @@ function saveListesPerso() {
 
 function saveSucces() {
   localStorage.setItem("succes", JSON.stringify(succesState));
-}
-
-// ============ THEME MANAGEMENT ============
-function getTheme() {
-  return localStorage.getItem("theme") || "light";
-}
-
-function setTheme(theme) {
-  localStorage.setItem("theme", theme);
-}
-
-function applyTheme() {
-  const theme = getTheme();
-  if (theme === "dark") {
-    document.body.classList.add("dark");
-  } else {
-    document.body.classList.remove("dark");
-  }
 }
 
 // ============ NOTIFICATIONS MANAGEMENT ============
@@ -100,9 +67,6 @@ function setLastNotificationDate(date) {
 // ============ VERIFICATION STATE ============
 let listePersoActive = null;
 let verbesActifs = [...VERBES];
-let sessionStats = {
-  problematiquesRevises: 0
-};
 
 // ============ SM2 ALGORITHM ============
 function updateSM2(card, quality) {
@@ -197,17 +161,15 @@ function importStats(data) {
 
 // ============ GET ALL VERBS ============
 function getAllVerbes() {
-  let all = [...VERBES];
+  const all = new Map(VERBES.map(verbe => [verbe.inf, verbe]));
 
   Object.values(listesPerso).forEach(liste => {
     liste.forEach(v => {
-      if (!all.find(x => x.inf === v.inf)) {
-        all.push(v);
-      }
+      if (!all.has(v.inf)) all.set(v.inf, v);
     });
   });
 
-  return all;
+  return [...all.values()];
 }
 
 // ============ GET DICTIONARY ============

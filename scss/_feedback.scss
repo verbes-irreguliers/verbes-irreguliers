@@ -1,0 +1,18 @@
+.notification-toast {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 9999;
+  padding: 15px;
+  background: #ffd700;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.notification-toast p {
+  margin: 6px 0 0;
+}
+
+.filtered-out {
+  display: none !important;
+}

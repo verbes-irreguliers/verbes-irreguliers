@@ -92,7 +92,7 @@ function verifierSucces() {
 function afficherSucces(succes) {
   showAlertNotification(
     `🏆 Succès débloqué !`,
-    `<strong>${succes.titre}</strong><br><small>${succes.description}</small>`,
+    `${succes.titre} — ${succes.description}`,
     4000
   );
 }
@@ -138,7 +138,7 @@ function afficherStats() {
     <h3>🔥 Série de jours</h3>
     <p>
       Série actuelle :
-      <strong style="font-size:18px;">
+      <strong class="stats-streak">
         ${streak.count} jour${streak.count > 1 ? "s" : ""}
       </strong>
     </p>
@@ -161,24 +161,13 @@ function afficherStats() {
 }
 
 // ============ ALL VERBS DISPLAY ============
-let cacheTousLesVerbes = [];
-
 function afficherTousLesVerbes() {
   const container = document.getElementById("listeCompleteVerbes");
   if (!container) return;
 
   container.classList.remove("hidden");
 
-  let tousLesVerbes = [...VERBES];
-  cacheTousLesVerbes = tousLesVerbes;
-
-  Object.values(listesPerso).forEach(liste => {
-    liste.forEach(v => {
-      if (!tousLesVerbes.find(x => x.inf === v.inf)) {
-        tousLesVerbes.push(v);
-      }
-    });
-  });
+  const tousLesVerbes = getAllVerbes();
 
   let html = `
     <hr>
@@ -217,12 +206,13 @@ function afficherTousLesVerbes() {
     }
 
     html += `
-      <tr class="${classe}" onclick="afficherConjugaisonsVerbe('${v.inf}')" style="cursor: pointer; transition: background-color 0.2s;">
-        <td>${v.inf}</td>
-        <td>${v.sens}</td>
-        <td style="text-align:center;">${s.maitrise}</td>
-        <td style="text-align:center;">${s.erreurs}</td>
-        <td style="text-align:center;">${s.propositions}</td>
+      <tr class="${classe} verb-row" data-verb="${escapeHTML(v.inf)}" tabindex="0"
+          aria-label="Afficher les conjugaisons de ${escapeHTML(v.inf)}">
+        <td>${escapeHTML(v.inf)}</td>
+        <td>${escapeHTML(v.sens)}</td>
+        <td class="table-number">${s.maitrise}</td>
+        <td class="table-number">${s.erreurs}</td>
+        <td class="table-number">${s.propositions}</td>
       </tr>
     `;
   });
@@ -235,14 +225,15 @@ function afficherTousLesVerbes() {
 
   container.innerHTML = html;
   
-  // Add hover effect
-  const rows = container.querySelectorAll('tbody tr');
+  const rows = container.querySelectorAll("tbody tr");
   rows.forEach(row => {
-    row.addEventListener('mouseenter', function() {
-      this.style.backgroundColor = 'var(--hover)';
-    });
-    row.addEventListener('mouseleave', function() {
-      this.style.backgroundColor = '';
+    const openVerb = () => afficherConjugaisonsVerbe(row.dataset.verb);
+    row.addEventListener("click", openVerb);
+    row.addEventListener("keydown", event => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        openVerb();
+      }
     });
   });
 }
@@ -254,38 +245,27 @@ function fermerListeComplete() {
 
 // ============ DISPLAY CONJUGAISONS ============
 function afficherConjugaisonsVerbe(inf) {
-  // Find the verb in all verbs
-  let verbe = VERBES.find(v => v.inf === inf);
-  
-  if (!verbe) {
-    // Check personal lists
-    Object.values(listesPerso).forEach(liste => {
-      if (!verbe) {
-        verbe = liste.find(v => v.inf === inf);
-      }
-    });
-  }
-
+  const verbe = getAllVerbes().find(v => v.inf === inf);
   if (!verbe) return;
 
   const s = stats[inf] || { propositions: 0, erreurs: 0, maitrise: 0, lapses: 0 };
 
   const html = `
-    <h3 style="margin-top: 0; margin-bottom: 15px;">📖 ${verbe.inf}</h3>
-    <p><strong>Sens :</strong> ${verbe.sens}</p>
+    <h3 id="modalTitle" class="modal-title">📖 ${escapeHTML(verbe.inf)}</h3>
+    <p><strong>Sens :</strong> ${escapeHTML(verbe.sens)}</p>
     <hr>
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+    <div class="conjugation-grid">
       <div>
         <strong>Présent :</strong><br>
-        ${verbe.pres}
+        ${escapeHTML(verbe.pres)}
       </div>
       <div>
         <strong>Prétérit :</strong><br>
-        ${verbe.pret}
+        ${escapeHTML(verbe.pret)}
       </div>
       <div>
         <strong>Parfait :</strong><br>
-        ${verbe.parf}
+        ${escapeHTML(verbe.parf)}
       </div>
       <div>
         <strong>Statistiques :</strong><br>
@@ -296,7 +276,7 @@ function afficherConjugaisonsVerbe(inf) {
       </div>
     </div>
     <hr>
-    <button onclick="fermerConjugaisons()" style="width: 100%; padding: 10px; background: var(--button); color: var(--text); border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Fermer</button>
+    <button onclick="fermerConjugaisons()">Fermer</button>
   `;
 
   const modalContent = document.getElementById("modalContent");
@@ -404,4 +384,3 @@ function handleImportStats(file) {
 
   reader.readAsText(file);
 }
-

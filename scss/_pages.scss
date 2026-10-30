@@ -1,0 +1,160 @@
+.language-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.language-link {
+  display: block;
+  padding: 15px;
+  text-align: center;
+  font-size: 24px;
+}
+
+.language-link--unavailable {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.home-link {
+  font-size: 20px;
+}
+
+.construction-icon,
+.construction-status {
+  text-align: center;
+}
+
+.construction-icon {
+  font-size: 48px;
+}
+
+.construction-status {
+  font-size: 18px;
+}
+
+.legal-notice {
+  font-size: 14px;
+  margin: 20px 0 10px;
+}
+
+.legal-notice--small {
+  font-size: 8px;
+  margin-bottom: -10px;
+}
+
+.legal-notice--settings {
+  margin-top: -20px;
+  margin-bottom: -10px;
+}
+
+.legal-notice__note {
+  font-size: 10px;
+}
+
+.source-link {
+  display: inline-block;
+  font-size: 16px;
+  margin-bottom: -20px;
+}
+
+.streak-status {
+  margin-top: 10px;
+  text-align: center;
+  font-size: 150%;
+}
+
+.settings-group {
+  margin-bottom: 20px;
+}
+
+.settings-label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.theme-options {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.theme-options + .theme-options {
+  margin-top: 5px;
+}
+
+.theme-options button {
+  width: auto;
+  flex: 1;
+  min-width: 80px;
+}
+
+.settings-action {
+  width: 100%;
+  margin-top: 0;
+}
+
+.settings-action + .settings-action {
+  margin-top: 8px;
+}
+
+.help-content {
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+.help-list {
+  padding-left: 22px;
+  margin-top: 10px;
+}
+
+.suggestions-wrapper {
+  position: relative;
+}
+
+.import-list-label {
+  margin-top: 10px;
+}
+
+.group-info {
+  margin-bottom: 15px;
+}
+
+.group-title {
+  font-weight: bold;
+}
+
+.group-progress-label {
+  margin-top: 4px;
+  font-size: 12px;
+}
+
+.conjugation-modal__content {
+  background: var(--card);
+  color: var(--text);
+  padding: 30px;
+  border: 2px solid var(--primary);
+  border-radius: 12px;
+  width: 100%;
+  max-width: 500px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.button--back {
+  display: block;
+  width: 100%;
+  padding: 10px 15px;
+  background: var(--accent);
+  color: white;
+  border-radius: 4px;
+  text-align: center;
+}
+
+@media (max-width: 600px) {
+  .conjugation-modal__content {
+    padding: 20px;
+  }
+}

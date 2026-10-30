@@ -4,18 +4,6 @@
   border-bottom: 1px solid var(--border);
 }
 
-.theme-buttons {
-  display: flex;
-  gap: 5px;
-  flex-wrap: wrap;
-  margin-top: 5px;
-}
-
-.theme-buttons button {
-  flex: 1;
-  min-width: 80px;
-}
-
 .special-char-container {
   display: flex;
   gap: 8px;
@@ -151,6 +139,35 @@ table tbody tr:nth-child(even) {
   opacity: 0.5;
 }
 
+.stats-streak {
+  font-size: 18px;
+}
+
+.verb-row {
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.verb-row:hover,
+.verb-row:focus-visible {
+  background: var(--hover);
+}
+
+.table-number {
+  text-align: center;
+}
+
+.modal-title {
+  margin: 0 0 15px;
+}
+
+.conjugation-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
 #modalConjugaisons {
   position: fixed;
   inset: 0;
@@ -175,14 +192,4 @@ table tbody tr:nth-child(even) {
   overflow-y: auto;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   border: 2px solid var(--primary);
-}
-
-.footer {
-  font-size: 14px;
-  margin-top: 20px;
-  text-align: center;
-}
-
-.footer small {
-  font-size: 10px;
 }
