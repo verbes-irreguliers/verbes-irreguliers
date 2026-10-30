@@ -1,0 +1,188 @@
+.settings-section {
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--border);
+}
+
+.theme-buttons {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  margin-top: 5px;
+}
+
+.theme-buttons button {
+  flex: 1;
+  min-width: 80px;
+}
+
+.special-char-container {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.result {
+  margin-top: 15px;
+  padding: 10px;
+  background: var(--input);
+  border-radius: 4px;
+  text-align: left;
+}
+
+@keyframes successPop {
+  0% {
+    transform: scale(1);
+  }
+
+  40% {
+    transform: scale(1.05);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+.success-animation {
+  animation: successPop 0.4s ease;
+}
+
+.verbe-maitrise {
+  background: var(--success);
+  color: var(--text);
+}
+
+.verbe-probleme {
+  background: var(--error);
+  color: var(--text);
+}
+
+.verbe-neutre {
+  background: var(--hover);
+}
+
+.verbe-maitrise td,
+.verbe-probleme td,
+.verbe-neutre td {
+  border: 1px solid var(--border);
+  padding: 6px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 10px 0;
+}
+
+table td,
+table th {
+  border: 1px solid var(--border);
+  padding: 8px;
+  text-align: left;
+}
+
+table thead {
+  background: var(--input);
+  font-weight: bold;
+}
+
+table tbody tr:nth-child(even) {
+  background: var(--input);
+}
+
+.suggestions {
+  position: absolute;
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid var(--border);
+  width: 100%;
+  max-height: 150px;
+  overflow-y: auto;
+  z-index: 10;
+  border-radius: 4px;
+}
+
+.suggestions div {
+  padding: 8px;
+  cursor: pointer;
+}
+
+.suggestions div:hover,
+.suggestions div.active {
+  background: var(--accent);
+  color: white;
+}
+
+.progress-bar {
+  background: #ddd;
+  height: 12px;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-top: 6px;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--primary);
+  transition: width 0.4s;
+}
+
+.stats-item {
+  padding: 8px;
+  margin-bottom: 6px;
+  border-radius: 6px;
+  background: var(--input);
+}
+
+.stats-item.unlocked {
+  background: #d4edda;
+  opacity: 1;
+}
+
+.stats-item.locked {
+  opacity: 0.5;
+}
+
+#modalConjugaisons {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 15px;
+}
+
+#modalConjugaisons > div {
+  background: var(--card);
+  color: var(--text);
+  padding: 30px;
+  border-radius: 12px;
+  max-width: 500px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  border: 2px solid var(--primary);
+}
+
+.footer {
+  font-size: 14px;
+  margin-top: 20px;
+  text-align: center;
+}
+
+.footer small {
+  font-size: 10px;
+}

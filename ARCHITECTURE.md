@@ -8,7 +8,17 @@
 ├── allemand.html              # Application principale
 ├── anglais.html               # Placeholder (en développement)
 ├── css/
-│   └── style.css              # Styles centralisés
+│   └── style.css              # CSS compilé et minifié depuis scss/
+├── scss/
+│   ├── style.scss             # Point d'entrée SCSS
+│   ├── _themes.scss           # Variables et thèmes
+│   ├── _base.scss             # Styles globaux et typographie
+│   ├── _layout.scss           # Cartes et en-tête
+│   ├── _controls.scss         # Formulaires et boutons
+│   ├── _components.scss       # Composants de l'application
+│   ├── _responsive.scss       # Adaptations pour petits écrans
+│   └── _fonts.scss            # Importation des polices
+├── package.json               # Script de compilation Sass
 ├── js/
 │   ├── data.js               # Données des verbes (VÉRIFIÉES)
 │   ├── storage.js            # Gestion localStorage + SM2
@@ -26,6 +36,10 @@
 └── README.md
 
 ```
+## Modifier les styles
+
+Les sources SCSS sont dans `scss/` et `css/style.css` est le fichier compilé utilisé par les pages.
+Après avoir installé les dépendances avec `npm install`, recompilez-le avec `npm run build:css`.
 
 ## 🔧 Modules JavaScript
 
