@@ -4,47 +4,22 @@
 
 ```
 /
-├── index.html                 # Page d'accueil
-├── allemand.html              # Application principale
-├── anglais.html               # Placeholder (en développement)
-├── css/
-│   └── style.css              # CSS compilé et minifié depuis scss/
-├── scss/
-│   ├── style.scss             # Point d'entrée SCSS
-│   ├── _themes.scss           # Variables et thèmes
-│   ├── _base.scss             # Styles globaux et typographie
-│   ├── _layout.scss           # Cartes et en-tête
-│   ├── _controls.scss         # Formulaires et boutons
-│   ├── _components.scss       # Composants de l'application
-│   ├── _responsive.scss       # Adaptations pour petits écrans
-│   ├── _fonts.scss            # Importation des polices
-│   ├── _pages.scss            # Pages d'accueil et paramètres
-│   ├── _personal-lists.scss   # Listes personnalisées
-│   ├── _feedback.scss         # Notifications et filtres
-│   ├── _pomodoro.scss         # Minuteur Pomodoro
-│   └── _games.scss            # Mini-jeux
-├── package.json               # Script de compilation Sass
-├── js/
-│   ├── data.js               # Données des verbes (VÉRIFIÉES)
-│   ├── storage.js            # Gestion localStorage + SM2
-│   ├── utils.js              # Fonctions utilitaires
-│   ├── quiz.js               # Logique du quiz
-│   ├── stats.js              # Statistiques et succès
-│   ├── verbesPerso.js        # Listes personnalisées
-│   ├── notifications.js      # Notifications du navigateur
-│   ├── theme.js              # Thème sombre/clair
-│   └── app.js                # Initialisation
-├── youpi.mp3
-├── e_oh.mp3
-├── notification.mp3
-├── switch.mp3
-└── README.md
-
+├── src/                       # Sources lisibles à modifier
+│   ├── index.html
+│   ├── allemand.html
+│   ├── anglais.html
+│   ├── css/
+│   ├── js/
+│   ├── scss/
+│   └── *.mp3, *.ogg
+├── scripts/build.mjs          # Build/minification
+├── index.html                 # Page générée, prête à publier
+├── allemand.html              # Page générée, prête à publier
+├── anglais.html               # Page générée, prête à publier
+└── package.json
 ```
-## Modifier les styles
 
-Les sources SCSS sont dans `scss/` et `css/style.css` est le fichier compilé utilisé par les pages.
-Après avoir installé les dépendances avec `npm install`, recompilez-le avec `npm run build:css`.
+`npm ci` installe les outils ; `npm run build` compile le SCSS, regroupe/minifie le JavaScript, intègre JS et CSS dans les pages à la racine, puis copie les fichiers audio.
 
 ## 🔧 Modules JavaScript
 

@@ -6,16 +6,13 @@ Système interactif et gamifié pour réviser les verbes irréguliers (allemand 
 
 **Utiliser la version en ligne : [verbes-irreguliers.github.io/verbes-irreguliers/](URL "https://verbes-irreguliers.github.io/verbes-irreguliers/")**
 
-**Utiliser hors ligne :**
+**Générer le site :**
 
-1. **Ouvrir le projet** : Double-cliquez sur `index.html`
-2. **Sélectionner la langue** : Cliquez sur 🇩🇪 Allemand
-3. **Commencer** : Cliquez sur "🎯 Révision ciblée" ou "🧩 Verbes personnalisés" pour ajouter et réviser vos propres verbes.
+```sh
+npm ci
+npm run build
+```
 
-C'est tout ! L'application fonctionne complètement hors ligne.
+Le build génère `index.html`, `allemand.html` et `anglais.html` à la racine. Le CSS et le JavaScript sont compilés, minifiés et intégrés dans les pages. Les sources modifiables restent dans `src/`.
 
-Bon courage dans votre apprentissage !
-
-## Modifier les styles
-
-Les sources SCSS sont organisées par fonctionnalité dans `scss/`. Le fichier `css/style.css` est généré par `npm run build:css` après `npm install`.
+Ouvrez ensuite `index.html` dans un navigateur. Les fichiers audio sont copiés à la racine lors du build ; aucune dépendance JavaScript ou CSS externe n'est requise.
